@@ -52,7 +52,10 @@ const utils = {
    * @returns {string} MySQL形式の現在日時
    */
   getCurrentDateTime: () => {
-    return new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const date = new Date();
+    const offset = date.getTimezoneOffset() * 60000; // タイムゾーンのオフセット（ミリ秒）
+    const localDate = new Date(date.getTime() - offset); // ローカルタイム
+    return localDate.toISOString().slice(0, 19).replace('T', ' ');
   },
 
   /**

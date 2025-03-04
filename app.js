@@ -5,7 +5,6 @@ const config = require('./config/config');
 const setup_cors = require('./middleware/cors');
 const routes = require('./routes/router');
 const db = require('./db');
-const validate_body = require('./middleware/validate_body');
 
 db.initializeDatabase();
 
@@ -24,7 +23,7 @@ app.use('/api',routes);
 app.use((req, res, next) => {
     res.status(404).json({
         success: false,
-        message: 'Not Found',
+        message: 'ページが見つかりません',
     });
 });
 
