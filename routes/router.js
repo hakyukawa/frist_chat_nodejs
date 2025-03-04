@@ -3,6 +3,7 @@ const router = express.Router();
 const middleware_auth = require('../middleware/auth');
 const user_handler = require('../handlers/user_handler');
 const message_handler = require('../handlers/message_handler');
+const friend_handler = require('../handlers/friend_handler');
 const validate_body = require('../middleware/validate_body');
 
 const v1 = express.Router();
@@ -10,6 +11,8 @@ const v1 = express.Router();
 v1.post('/login',validate_body, user_handler.login);
 v1.post('/signup', validate_body, user_handler.signup);
 
+
+v1.get('/friendship/:id',validate_body, friend_handler.friendship);
 // 認証後のエンドポイント
 const auth = express.Router();
 auth.use(middleware_auth.verify_token);

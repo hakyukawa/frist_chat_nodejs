@@ -18,3 +18,7 @@ class FriendRequest {
         this.updated_at = updated_at;
     }
 }
+module.exports = {
+  Friendship,
+  FriendRequest
+}
