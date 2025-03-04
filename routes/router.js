@@ -3,11 +3,14 @@ const router = express.Router();
 const middleware_auth = require('../middleware/auth');
 const user_handler = require('../handlers/user_handler');
 const validate_body = require('../middleware/validate_body');
+const user_repository = require('../repositories/user_repository');
 
 const v1 = express.Router();
 
 v1.post('/login',validate_body, user_handler.login);
 v1.post('/signup', validate_body, user_handler.signup);
+
+
 
 // 認証後のエンドポイント
 const auth = express.Router();
@@ -17,6 +20,7 @@ auth.use(middleware_auth.verify_token);
 const user = express.Router();
 
 user.get('/profile',);
+user.post('/channel', validate_body, user_handler.createChannel);
 
 //　エンドポイントをマウント
 auth.use('/user', user);
