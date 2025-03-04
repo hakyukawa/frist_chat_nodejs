@@ -1,0 +1,4 @@
+config/.env
+utils/logs/error.log
+node_modules
+utils/logs/info.log
