@@ -7,7 +7,7 @@ const validate_body = require('../middleware/validate_body');
 const v1 = express.Router();
 
 v1.post('/login',validate_body, user_handler.login);
-//v1.post('/register', user_handler.registerhandler);
+v1.post('/signup', validate_body, user_handler.signup);
 
 // 認証後のエンドポイント
 const auth = express.Router();

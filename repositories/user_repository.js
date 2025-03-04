@@ -38,6 +38,15 @@ class user_repository {
             throw error;
         }
     }
+    // サインアップ関数
+    async resister(id, username, mail, hashedPassword, rank, point, created_time) {
+        try {
+            const [rows] = await pool.query('INSERT INTO user (user_id, user_name, mail, password, user_rank, point, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [id, username, mail, hashedPassword, rank, point, created_time]);
+            return rows.insertId;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = new user_repository();
