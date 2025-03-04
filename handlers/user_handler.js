@@ -1,6 +1,7 @@
 const { access } = require('fs');
 const auth = require('../middleware/auth');
 const user_service = require('../services/user_service');
+const { console } = require('inspector');
 
 const login = async (req, res, next) => {
     const { user_id, password } = req.body;
@@ -15,6 +16,17 @@ const login = async (req, res, next) => {
     });
 }
 
+const signup = async (req, res) => {
+    const {user_id, user_name, mail, password} = req.body;
+    console.log(user_name);
+    const result = await user_service.signup(user_id, user_name, mail, password);
+
+    res.status(result.status).json({
+        message: result.message,
+    });
+}
+
 module.exports = {
-    login
+    login,
+    signup
 }
