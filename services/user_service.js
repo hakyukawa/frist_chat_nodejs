@@ -72,9 +72,30 @@ const createChannel = async (channel_id, server_id, channel_name) => {
     }
 }
 
+const get_items = async (user_id) => {
+    const exiting_uer = await userRepository.get_user_byID(user_id);
+    if (!exiting_uer) {
+        return { status: 401, message: '存在しないユーザーです'};
+    }
+    const items = await userRepository.get_user_items(user_id);
+
+    if (!items || items.length === 0) {
+        return { status: 404, message: 'アイテムが見つかりません', items: [] };
+    }
+
+    return {
+        status: 200, 
+        message: 'ユーザー保有アイテム取得成功',
+        item_id: items.map(item => item.item_id),
+        item_name: items.map(item => item.item_name),
+        image_url: items.map(item => item.image_url),
+    }
+}
+
 module.exports = {
     login,
     signup,
     get_profile,
     createChannel,
+    get_items,
 };
