@@ -19,6 +19,7 @@ const auth = express.Router();
 auth.use(middleware_auth.verify_token);
 auth.use(validate_body);
 
+const user = express.Router();
 // ユーザー関連のエンドポイント
 user.get('/profile', user_handler.get_profile);
 // ユーザー情報取得
