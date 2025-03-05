@@ -13,7 +13,6 @@ class user_repository {
 
             // データベースの行を User モデルのインスタンスに変換
             const userData = rows[0];
-            console.log(userData)
             return new User(
                 userData.USER_ID,
                 userData.USER_NAME,

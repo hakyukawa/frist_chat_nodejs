@@ -12,7 +12,6 @@ v1.post('/login',validate_body, user_handler.login);
 v1.post('/signup', validate_body, user_handler.signup);
 
 
-v1.get('/friendship/:id',validate_body, friend_handler.friendship);
 // 認証後のエンドポイント
 const auth = express.Router();
 auth.use(middleware_auth.verify_token);
@@ -20,6 +19,7 @@ auth.use(middleware_auth.verify_token);
 // ユーザー関連のエンドポイント
 const user = express.Router();
 user.post('/message',validate_body, message_handler.send_message);
+user.get('/friendship',validate_body, friend_handler.friendship);
 
 //　エンドポイントをマウント
 auth.use('/user', user);

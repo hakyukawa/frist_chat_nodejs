@@ -4,12 +4,13 @@ const friend_service = require('../services/friend_service');
 const { error } = require('console');
 
 const friendship = async (req, res, next) => {
-  const user_id = req.params.id;
+  const user_id = req.user_id;
 
   try {
     const result = await friend_service.get_firend_info(user_id);
     //レスポンスデータ
     res.status(result.status).json({
+      status: result.status,
       message: result.message,
       friends: result.friends || [],
       error: result.error || null,
