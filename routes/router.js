@@ -10,6 +10,7 @@ const v1 = express.Router();
 v1.post('/login',validate_body, user_handler.login);
 v1.post('/signup', validate_body, user_handler.signup);
 
+
 // 認証後のエンドポイント
 const auth = express.Router();
 auth.use(middleware_auth.verify_token);
@@ -17,6 +18,7 @@ auth.use(middleware_auth.verify_token);
 // ユーザー関連のエンドポイント
 const user = express.Router();
 user.post('/message',validate_body, message_handler.send_message);
+user.get('/profile', validate_body, user_handler.get_profile);
 
 //　エンドポイントをマウント
 auth.use('/user', user);
