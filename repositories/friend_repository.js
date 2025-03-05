@@ -2,9 +2,9 @@ const pool = require('../config/database');
 const {Friendship} = require('../models/Friend');
 
 class friend_repository {
-  async get_friendID(id) {
+  async get_friendID(user_id) {
     try {
-      const [rows] = await pool.query('SELECT * FROM friendship WHERE user_id_1 = ? or user_id_2 = ?', [id,id]);
+      const [rows] = await pool.query('SELECT * FROM friendship WHERE user_id_1 = ? or user_id_2 = ?', [user_id,user_id]);
       // フレンドが見つからない場合
       if (rows.length === 0) {
         return null; 
@@ -18,6 +18,24 @@ class friend_repository {
       } catch (error) {
       throw error;
     }
+  }
+  async get_friendInfo(friend_id){
+    try{
+      const [rows] = await pool.query('SELECT user_id,icon_url FROM user WHERE user_id = ?', [friend_id])
+      // ユーザーが見つからない場合
+      if (rows.length === 0) {
+        return null; 
+      }
+      const friendData = rows[0];
+      //ユーザーIDとアイコンURLのみ返す
+      return{
+        friend_id: friendData.user_id,
+        icon_url: friendData.icon_url
+      }
+    }catch{
+
+    }
+
   }
 }
 
