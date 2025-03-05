@@ -32,7 +32,34 @@ const get_firend_info = async (id) => {
     return { status: 500, message: "サーバーエラー", friends: [], error: error.message };
   }
 };
-
+//フレンドリクエスト作成
+const create_FriendRequest = async (user_id,receiver_id) => {
+  const request_id = utils.generateUUID();
+  try{
+    const friendRequest = await friendRepository.create_FriendRequest(
+      request_id,
+      user_id,
+      receiver_id
+    )
+    if(!friendRequest) {
+      return {
+          status: 500,
+          message: 'データベースに登録出来ませんでした'
+      }
+    }
+    return{
+      status: 200,
+      message: 'フレンドリクエスト作成完了',
+      server_id: friendRequest.request_id
+    }
+  }catch (error){
+    return {
+      status: 500,
+      message: `フレンドリクエスト作成中にエラーが発生しました : ${error}`
+    }
+  }
+} 
 module.exports = {
-  get_firend_info
+  get_firend_info,
+  create_FriendRequest,
 };
