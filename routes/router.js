@@ -19,7 +19,6 @@ auth.use(middleware_auth.verify_token);
 
 // ユーザー関連のエンドポイント
 const user = express.Router();
-user.post('/channel', validate_body, user_handler.createChannel);
 user.get('/friendship',validate_body, friend_handler.friendship);
 
 // サーバー関連のエンドポイント
@@ -30,6 +29,7 @@ server.post('/create', validate_body, server_handler.create_server);
 // チャンネル関連のエンドポイント
 const channel = express.Router();
 // メッセージ送信
+channel.post('/create', validate_body, user_handler.createChannel);
 channel.post('/message',validate_body, message_handler.send_message);
 
 
