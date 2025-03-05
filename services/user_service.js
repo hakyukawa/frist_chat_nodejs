@@ -60,9 +60,21 @@ const get_profile = async (user_id) => {
         user_point: user_profile.point,
     }
 }
+const createChannel = async (channel_id, server_id, channel_name) => {
+    //  チャンネル追加情報の代入
+    const channel = await userRepository.add_channel(channel_id, server_id, channel_name, utils.getCurrentDateTime());
+
+    return {
+        status: 200,
+        message: 'チャンネルが正常に追加されました',
+        channel_id: channel.channel_id,
+        channel_name: channel.channel_name,
+    }
+}
 
 module.exports = {
     login,
     signup,
     get_profile,
+    createChannel,
 };

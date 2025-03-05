@@ -6,14 +6,14 @@ const verify_token = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ success: false, message: '認証トークンが見つかりません' });
+            return res.status(401).json({ status: 401, message: '認証トークンが見つかりません' });
         }
 
         const token = authHeader.split(' ')[1];
         const decoded = jwt.verify(token, config.jwt.secret);
 
         if (!decoded.user_id) {
-            return res.status(401).json({ success: false, message: '認証トークンの検証中にエラーが発生しました' });
+            return res.status(401).json({ status: 401, message: '認証トークンの検証中にエラーが発生しました' });
         }
 
         req.user_id = decoded.user_id;
@@ -22,11 +22,11 @@ const verify_token = (req, res, next) => {
         next();
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ success: false, message: '認証トークンの有効期限が切れました' });
+            return res.status(401).json({ status: 401, message: '認証トークンの有効期限が切れました' });
         } else if (error.name === 'JsonWebTokenError') {
-            return res.status(401).json({ success: false, message: '無効な認証トークンです' });
+            return res.status(401).json({ status: 401, message: '無効な認証トークンです' });
         } else {
-            return res.status(500).json({ success: false, message: '認証トークンの検証中にエラーが発生しました' });
+            return res.status(500).json({ status: 500, message: '認証トークンの検証中にエラーが発生しました' });
         }
     }
 };
