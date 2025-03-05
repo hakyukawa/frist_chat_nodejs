@@ -69,6 +69,10 @@ class user_repository {
                 userProfile.point,
                 userProfile.created_at
             );
+        } catch (error) {
+            throw error;
+        }
+    }
     // チャンネル追加関数
     async add_channel(channel_id, server_id, channel_name, created_time) {
         try {
