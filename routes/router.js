@@ -22,7 +22,7 @@ auth.use(validate_body);
 const user = express.Router();
 user.get('/friendship',validate_body, friend_handler.friendship);
 user.post('/friendrequest/:receiver_id',validate_body, friend_handler.friendrequest )
-
+user.get('/getfrinedrequest',validate_body ,friend_handler.get_FrinedRequest)
 // サーバー関連のエンドポイント
 const server = express.Router();
 // サーバー作成

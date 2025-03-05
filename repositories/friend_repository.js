@@ -1,6 +1,6 @@
 const { pathToFileURL } = require('url');
 const pool = require('../config/database');
-const {Friendship} = require('../models/Friend');
+const {Friendship,FriendRequest} = require('../models/Friend');
 const utils = require('../utils/utils');
 
 class friend_repository {
@@ -22,24 +22,27 @@ class friend_repository {
       throw error;
     }
   }
+
   //最低限のフレンド情報を取得
-  async get_friendInfo(friend_id){
+  async get_UserMinimumInfo(user_id){
     try{
-      const [rows] = await pool.query('SELECT user_id,icon_url FROM user WHERE user_id = ?', [friend_id])
+      const [rows] = await pool.query('SELECT user_id, user_name, icon_url FROM user WHERE user_id = ?', [user_id])
       // ユーザーが見つからない場合
       if (rows.length === 0) {
         return null; 
       }
-      const friendData = rows[0];
+      const UserData = rows[0];
       //ユーザーIDとアイコンURLのみ返す
       return{
-        friend_id: friendData.user_id,
-        icon_url: friendData.icon_url
+        user_id: UserData.user_id,
+        user_name: UserData.user_name,
+        icon_url: UserData.icon_url
       }
     }catch (error){
       throw error;
     }
   }
+
   //フレンドリクエストを作成する
   async create_FriendRequest(request_id,sender_id,recever_id){
     //デフォルトは未認証
@@ -51,11 +54,43 @@ class friend_repository {
       if(result.affectedRows === 0){
         return null;
       }
-      return request_id; 
+      return request_id;
     }catch(error){
       throw error;
     }
   }
+
+  //クライアントのフレンドリクエスト
+  async serch_FriendRequest(user_id){
+    try{
+      const [rows] = await pool.query('SELECT * FROM friend_request WHERE RECEIVER_ID = ?',[user_id])
+      // フレンドリクエストが見つからない場合
+      if (rows.length === 0) {
+        return null; 
+      }
+      return rows.map(friendRequestData => new FriendRequest(
+        friendRequestData.request_id,
+        friendRequestData.sender_id,
+        friendRequestData.receiver_id,
+        friendRequestData.status,
+        friendRequestData.created_at,
+        friendRequestData.updated_at
+      ));
+    }catch(err){
+      throw err
+    }
+  }
+
+  //フレンドリクエストの結果
+  async result_FriendRequest(request_id,request_status){
+    try{
+      const [result] = await pool.query('UPDATE friend')
+    }catch(err){
+      throw err
+    }
+  }
+  
+
 }
 
 module.exports = new friend_repository();
