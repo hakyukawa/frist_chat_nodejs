@@ -1,6 +1,7 @@
 const { read } = require('fs');
 const pool = require('../config/database');
 const User = require('../models/User');
+const { use } = require('../routes/router');
 
 class user_repository {
     async get_user_byID(id) {
@@ -14,14 +15,14 @@ class user_repository {
             // データベースの行を User モデルのインスタンスに変換
             const userData = rows[0];
             return new User(
-                userData.user_id,
-                userData.user_name,
-                userData.mail,
-                userData.password,
-                userData.icon_url,
-                userData.user_rank,
-                userData.point,
-                userData.created_at
+                userData.USER_ID,
+                userData.USER_NAME,
+                userData.MAIL,
+                userData.PASSWORD,
+                userData.ICON_URL,
+                userData.USER_RANK,
+                userData.POINT,
+                userData.CREATED_AT
             );
         } catch (error) {
             throw error;

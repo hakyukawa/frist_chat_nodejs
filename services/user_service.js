@@ -13,14 +13,14 @@ const login = async (id, password) => {
     if (!is_password_valid) {
         return { status: 401, message: 'ユーザーIDまたはパスワードが違います' };
     }
-    const access_token = auth.generate_access_token(user.id);
-    const refresh_token = auth.generate_refresh_token({userId: user.id});
+    const access_token = auth.generate_access_token(user.user_id);
+    const refresh_token = auth.generate_refresh_token({userId: user.user_id});
     return {
         status: 200,
         message: 'ログイン成功',
         access_token,
         refresh_token,
-        user_id: user.id,
+        user_id: user.user_id,
     };
 };
 

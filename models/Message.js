@@ -22,3 +22,5 @@ class ReadStatus {
         this.last_updated_id = last_updated_id;
     }
 }
+
+module.exports = { Message, ReadStatus };

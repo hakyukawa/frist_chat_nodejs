@@ -48,11 +48,28 @@ const utils = {
   },
 
   /**
+   * 時間文字列をMySQLに適したフォーマットに変換
+   * @param {string} timeString - HH:MM:SS形式の時間文字列
+   * @returns {string} MySQL用の時間文字列
+   */
+  formatTimeForMySQL: (timeString) => {
+    // 時間文字列が正しいフォーマット（HH:MM:SS）かどうかを検証
+    const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+    if (!timeRegex.test(timeString)) {
+      throw new Error(`Invalid time format: ${timeString}. Expected HH:MM:SS`);
+    }
+    return timeString;
+  },
+
+  /**
    * 現在の日時をMySQLフォーマット（YYYY-MM-DD HH:MM:SS）で取得
    * @returns {string} MySQL形式の現在日時
    */
   getCurrentDateTime: () => {
-    return new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const date = new Date();
+    const offset = date.getTimezoneOffset() * 60000; // タイムゾーンのオフセット（ミリ秒）
+    const localDate = new Date(date.getTime() - offset); // ローカルタイム
+    return localDate.toISOString().slice(0, 19).replace('T', ' ');
   },
 
   /**

@@ -6,31 +6,28 @@ const verify_token = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            const error = new Error('認証トークンが見つかりません');
-            error.statusCode = 401;
-            return next(error);
+            return res.status(401).json({ status: 401, message: '認証トークンが見つかりません' });
         }
 
         const token = authHeader.split(' ')[1];
         const decoded = jwt.verify(token, config.jwt.secret);
 
-        req.userId = decoded.userId;
-        req.tokenData = decoded;
+        if (!decoded.user_id) {
+            return res.status(401).json({ status: 401, message: '認証トークンの検証中にエラーが発生しました' });
+        }
+
+        req.user_id = decoded.user_id;
+        req.token_data = decoded;
 
         next();
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
-            error.message = '認証トークンの有効期限が切れました';
-            error.statusCode = 401;
+            return res.status(401).json({ status: 401, message: '認証トークンの有効期限が切れました' });
         } else if (error.name === 'JsonWebTokenError') {
-            error.message = '無効な認証トークンです';
-            error.statusCode = 401;
+            return res.status(401).json({ status: 401, message: '無効な認証トークンです' });
         } else {
-            error.statusCode = 500;
-            error.message = '認証トークンの検証中にエラーが発生しました';
+            return res.status(500).json({ status: 500, message: '認証トークンの検証中にエラーが発生しました' });
         }
-
-        next(error);
     }
 };
 
@@ -66,8 +63,8 @@ const verify_refresh_token = (req, res, next) => {
 };
 
 // アクセストークンの生成
-const generate_access_token = (userId) => {
-    const token = jwt.sign({ userId }, config.jwt.secret, {
+const generate_access_token = (user_id) => {
+    const token = jwt.sign({ user_id: user_id }, config.jwt.secret, {
         expiresIn: '1h',
     });
     return token;
@@ -75,7 +72,7 @@ const generate_access_token = (userId) => {
 
 // リフレッシュトークンの生成
 const generate_refresh_token = (payload) => {
-    return token = jwt.sign(payload, config.jwt.refresh_secret, { expiresIn: config.jwt.refresh_token_expiry });
+    return jwt.sign(payload, config.jwt.refresh_secret, { expiresIn: config.jwt.refresh_token_expiry });
 };
 
 module.exports = {
