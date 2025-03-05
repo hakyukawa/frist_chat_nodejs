@@ -9,9 +9,9 @@ const server_handler = require('../handlers/server_handler');
 
 const v1 = express.Router();
 //ログイン
-v1.post('/login',validate_body, user_handler.login);
+v1.post('/login',validate_body, user_handler.login);    //http://localhost:3000/api/v1/login
 //新規登録
-v1.post('/signup', validate_body, user_handler.signup);
+v1.post('/signup', validate_body, user_handler.signup);  //http://localhost:3000/api/v1/signup
 
 // 認証後のエンドポイント
 const auth = express.Router();
@@ -19,18 +19,21 @@ auth.use(middleware_auth.verify_token);
 
 // ユーザー関連のエンドポイント
 const user = express.Router();
-user.get('/friendship',validate_body, friend_handler.friendship);
+// ユーザー情報取得
+user.get('/friendship',validate_body, friend_handler.friendship);    //http://localhost:3000/api/v1/user/friendship
 
 // サーバー関連のエンドポイント
 const server = express.Router();
 // サーバー作成
-server.post('/create', validate_body, server_handler.create_server);
+server.post('/create', validate_body, server_handler.create_server);    //http://localhost:3000/api/v1/server/create
 
 // チャンネル関連のエンドポイント
 const channel = express.Router();
+// チャンネル作成
+channel.post('/create', validate_body, user_handler.createChannel);     //http://localhost:3000/api/v1/channel/create
 // メッセージ送信
-channel.post('/create', validate_body, user_handler.createChannel);
-channel.post('/message',validate_body, message_handler.send_message);
+channel.post('/message',validate_body, message_handler.send_message);    //http://localhost:3000/api/v1/channel/message
+channel.put('/message/:message_id',validate_body, message_handler.edit_message);     //http://localhost:3000/api/v1/channel/message
 
 
 //　エンドポイントをマウント
