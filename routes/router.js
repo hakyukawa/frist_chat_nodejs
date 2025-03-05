@@ -13,13 +13,14 @@ v1.post('/login',validate_body, user_handler.login);    //http://localhost:3000/
 //新規登録
 v1.post('/signup', validate_body, user_handler.signup);  //http://localhost:3000/api/v1/signup
 
+
 // 認証後のエンドポイント
 const auth = express.Router();
 auth.use(middleware_auth.verify_token);
 auth.use(validate_body);
 
 // ユーザー関連のエンドポイント
-const user = express.Router();
+user.get('/profile', user_handler.get_profile);
 // ユーザー情報取得
 user.get('/friendship', friend_handler.friendship);    //http://localhost:3000/api/v1/user/friendship
 
@@ -35,7 +36,6 @@ channel.post('/create', user_handler.createChannel);     //http://localhost:3000
 // メッセージ送信
 channel.post('/message', message_handler.send_message);    //http://localhost:3000/api/v1/channel/message
 channel.put('/message/:message_id', message_handler.edit_message);     //http://localhost:3000/api/v1/channel/message
-
 
 //　エンドポイントをマウント
 server.use('/channel', channel);

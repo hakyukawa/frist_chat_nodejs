@@ -41,6 +41,25 @@ const signup = async (id, username, mail, password) => {
     };
 }
 
+const get_profile = async (user_id) => {
+    // ユーザーが存在しているか
+    const exiting_uer = await userRepository.get_user_byID(user_id);
+    if (!exiting_uer) {
+        return { status: 401, message: '存在しないユーザーです'};
+    }
+
+    const user_profile = await userRepository.get_user_profile(user_id);
+
+    return {
+        status: 200,
+        message: 'ユーザー情報取得成功',
+        user_id: user_profile.user_id,
+        user_name: user_profile.user_name,
+        icon_url: user_profile.icon_url,
+        user_rank: user_profile.user_rank,
+        user_point: user_profile.point,
+    }
+}
 const createChannel = async (channel_id, server_id, channel_name) => {
     //  チャンネル追加情報の代入
     const channel = await userRepository.add_channel(channel_id, server_id, channel_name, utils.getCurrentDateTime());
@@ -56,5 +75,6 @@ const createChannel = async (channel_id, server_id, channel_name) => {
 module.exports = {
     login,
     signup,
+    get_profile,
     createChannel,
 };

@@ -49,6 +49,26 @@ class user_repository {
             throw error;
         }
     }
+    // プロフィール取得
+    async get_user_profile(user_id) {
+        try {
+            const [ rows ] = await pool.query('SELECT user_id, user_name, icon_url, user_rank, point FROM user WHERE user_id = ?', [user_id]);
+
+            if (rows.length === 0) {
+                return null; // ユーザーが見つからない場合
+            }
+            // データベースの行を User モデルのインスタンスに変換
+            const userProfile = rows[0];
+            return new User (
+                userProfile.user_id,
+                userProfile.user_name,
+                userProfile.mail,
+                userProfile.password,
+                userProfile.icon_url,
+                userProfile.user_rank,
+                userProfile.point,
+                userProfile.created_at
+            );
     // チャンネル追加関数
     async add_channel(channel_id, server_id, channel_name, created_time) {
         try {

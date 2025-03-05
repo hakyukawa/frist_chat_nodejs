@@ -42,8 +42,33 @@ const createChannel = async (req, res) => {
     });
 }
 
+const get_profile = async (req, res) => {
+    const user_id = req.user_id;
+    if (!user_id) {
+        // return { status: 404, message: 'ユーザーIDがありません' };
+        return res.status(404).json({message: 'ユーザーIDがありません'});
+    }
+    const result = await user_service.get_profile(user_id);
+
+    if (!result) {
+        return res.status(404).json({ status: 404, message: 'ユーザープロフィールが見つかりません' });
+    }
+
+    res.status(result.status).json({
+        status: result.status,
+        message: result.message,
+        user_id: result.user_id || null,
+        user_name: result.user_name || null,
+        icon_url: result.icon_url || null,
+        user_rank: result.user_rank || 0,
+        user_point: result.user_point || 0,
+        error: result.error || null,
+    });
+}
+
 module.exports = {
     login,
     signup,
+    get_profile,
     createChannel,
 }
