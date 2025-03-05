@@ -1,3 +1,4 @@
+const { read } = require('fs');
 const pool = require('../config/database');
 const User = require('../models/User');
 const { use } = require('../routes/router');
@@ -44,6 +45,16 @@ class user_repository {
         try {
             const [rows] = await pool.query('INSERT INTO user (user_id, user_name, mail, password, user_rank, point, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [id, username, mail, hashedPassword, rank, point, created_time]);
             return rows.insertId;
+        } catch (error) {
+            throw error;
+        }
+    }
+    // チャンネル追加関数
+    async add_channel(channel_id, server_id, channel_name, created_time) {
+        try {
+            await pool.query('INSERT INTO channel (channel_id, server_id, channel_name, created_at) VALUES (?, ?, ?, ?)', [channel_id, server_id, channel_name, created_time]);
+
+            return {channel_id, channel_name};
         } catch (error) {
             throw error;
         }
