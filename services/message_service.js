@@ -6,10 +6,10 @@ class message_service {
         if(!user_id || !channel_id || !content) {
             return {
                 status: 400,
-                message: 'メッセージの送信に失敗しました'
+                message: 'ボディが不足しています'
             }
         }
-        sender_
+        
         const response = await message_repository.send_message(user_id, channel_id, content);
         if(!response) {
             return {
