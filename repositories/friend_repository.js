@@ -26,7 +26,7 @@ class friend_repository {
   //最低限のフレンド情報を取得
   async get_UserMinimumInfo(user_id){
     try{
-      const [rows] = await pool.query('SELECT user_id, user_name, icon_url FROM user WHERE user_id = ?', [user_id])
+      const [rows] = await pool.query('SELECT USER_ID, USER_NAME, ICON_URL FROM user WHERE user_id = ?', [user_id])
       // ユーザーが見つからない場合
       if (rows.length === 0) {
         return null; 
@@ -34,9 +34,9 @@ class friend_repository {
       const UserData = rows[0];
       //ユーザーIDとアイコンURLのみ返す
       return{
-        user_id: UserData.user_id,
-        user_name: UserData.user_name,
-        icon_url: UserData.icon_url
+        user_id: UserData.USER_ID,
+        user_name: UserData.USER_NAME,
+        icon_url: UserData.ICON_URL
       }
     }catch (error){
       throw error;
@@ -81,16 +81,18 @@ class friend_repository {
     }
   }
 
-  //フレンドリクエストの結果
-  async response_FriendRequest(request_id,request_status){
+  //フレンドリクエストの結果によってステータスを変更する
+  async update_FriendRequest(request_id,request_status){
     try{
-      const [result] = await pool.query('UPDATE friend')
+      const [result] = await pool.query('UPDATE friend_request SET status = ? WHERE RIQUEST_ID = ?',[request_status,request_id])
+      if(result.affectedRows === 0 ){
+        return null;
+      }
+      return request_id
     }catch(err){
       throw err
     }
   }
-  
-
 }
 
 module.exports = new friend_repository();

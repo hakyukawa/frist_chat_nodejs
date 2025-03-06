@@ -86,15 +86,36 @@ const get_FrinedRequest = async (user_id) => {
         users: null
       };
     }
-    
   } catch (error) {
     console.error("Error in get_firend_info:", error);
     return { status: 500, message: "サーバーエラー", friends: [], error: error.message };
   }
 }
 
+//フレンドリクエストを更新するしょり
+const response_FriendRequest = async (request_id,friendReq_Status) => {
+  try{
+    const update_FriendRequest = await friendRepository.update_FriendRequest(request_id,friendReq_Status);
+    if (!update_FriendRequest) {
+      return {
+        status: 500,
+        message: 'データベースを更新出来ませんでした'
+      }
+    }
+    return {
+      status: 200,
+      message: 'フレンドリクエストのステータスを更新しました',
+      request_id: update_FriendRequest.request_id
+    }
+  }catch(error){
+    console.error("Error in get_firend_info:", error);
+    return { status: 500, message: `フレンドリクエスト更新中にエラーが発生しました${error}`};
+  }
+}
+
 module.exports = {
   get_firend_info,
   create_FriendRequest,
-  get_FrinedRequest
+  get_FrinedRequest,
+  response_FriendRequest
 };

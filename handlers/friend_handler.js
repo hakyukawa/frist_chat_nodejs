@@ -2,6 +2,7 @@ const { access } = require('fs');
 const auth = require('../middleware/auth');
 const friend_service = require('../services/friend_service');
 const { error } = require('console');
+const { resourceLimits } = require('worker_threads');
 
 //フレンド取得
 const friendship = async (req, res, next) => {
@@ -27,7 +28,7 @@ const friendrequest = async (req, res, next) => {
   const user_id = req.user_id;
   const receiver_id = req.params.receiver_id
 
-  const result = await friend_service.create_FriendRequest(user_id,receiver_id)
+  const result = await friend_service.create_FriendRequest(user_id, receiver_id)
   res.status(result.status).json(result)
 }
 
@@ -50,13 +51,27 @@ const get_FrinedRequest = async (req, res, next) => {
   }
 }
 
-const response_FriendRequest = async(req, res, next) => {
-  const {request_id} = req.body;
-  const res_FriendReq = req.params.res_FriendReq
+//フレンドリクエストのステータスを更新
+const response_FriendRequest = async (req, res, next) => {
+  const { request_id } = req.body;
+  const friendReq_Status = req.params.res_FriendReq
+  try {
+    const result = await friend_service.response_FriendRequest(request_id, friendReq_Status);
+    res.status(result.status).json({
+      status: result.status,
+      message: result.message,
+      request_id: result.request_id || [],
+      error: result.error || null, 
+    });
+  } catch (error) {
+    console.error("Error in friendship handler:", error);
+    res.status(500).json({ message: "サーバーエラー", error: error.message });
+  }
 }
 
 module.exports = {
   friendship,
   friendrequest,
-  get_FrinedRequest
+  get_FrinedRequest,
+  response_FriendRequest
 }

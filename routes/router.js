@@ -20,9 +20,11 @@ auth.use(middleware_auth.verify_token);
 auth.use(validate_body);
 
 const user = express.Router();
+//フレンド関係エンドポイント
 user.get('/friendship',validate_body, friend_handler.friendship);
 user.post('/friendrequest/:receiver_id',validate_body, friend_handler.friendrequest )
 user.get('/getfrinedrequest',validate_body ,friend_handler.get_FrinedRequest)
+user.put('/resultfriendrequest/:res_FriendReq',validate_body, friend_handler.response_FriendRequest)
 // サーバー関連のエンドポイント
 const server = express.Router();
 // サーバー作成
