@@ -1,7 +1,7 @@
 const { read } = require('fs');
 const pool = require('../config/database');
 const User = require('../models/User');
-const { use } = require('../routes/router');
+const { item_simple_response } = require('../dtos/item');
 const { Item } = require('../models/Item');
 
 class user_repository {
@@ -87,19 +87,15 @@ class user_repository {
 
     async get_user_items(user_id) {
         try {
-            const [ rows ] = await pool.query('SELECT i.item_id, i.item_name, i.item_type, i.item_point, i.description, i.image_url, i.created_at FROM user_item as ui JOIN item as i ON ui.item_id = i.item_id WHERE ui.user_id = ?', [user_id]);
+            const [ rows ] = await pool.query('SELECT i.item_id, i.item_name, i.image_url FROM user_item as ui JOIN item as i ON ui.item_id = i.item_id WHERE ui.user_id = ?', [user_id]);
             if (rows.length === 0) {
                 return null; // アイテムが見つからない場合
             }
             //データベースの行を Item モデルのインスタンスに変換
-            return rows.map(itemData => new Item(
+            return rows.map(itemData => new item_simple_response(
                 itemData.item_id,
                 itemData.item_name,
-                itemData.item_type,
-                itemData.item_point,
-                itemData.description,
                 itemData.image_url,
-                itemData.created_at
             ));
         } catch (error) {
             throw error;

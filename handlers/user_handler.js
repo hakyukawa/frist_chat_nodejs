@@ -78,9 +78,7 @@ const get_items = async (req, res) => {
         status: result.status,
         message: result.message,
         user_id: user_id,
-        item_id: result.item_id,
-        item_neme: result.item_name,
-        image_url: result.image_url,
+        items: result.items,
         error: result.error || null,
     });
 }
