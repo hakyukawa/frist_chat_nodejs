@@ -6,6 +6,7 @@ const message_handler = require('../handlers/message_handler');
 const friend_handler = require('../handlers/friend_handler');
 const validate_body = require('../middleware/validate_body');
 const server_handler = require('../handlers/server_handler');
+const { get } = require('http');
 
 const v1 = express.Router();
 v1.use(validate_body);
@@ -29,7 +30,8 @@ user.get('/friendship', friend_handler.friendship);    // http://localhost:3001/
 // サーバー関連のエンドポイント
 const server = express.Router();
 // サーバー作成
-server.post('/create', server_handler.create_server);    // http://localhost:3001/api/v1/server/create
+server.post('/', server_handler.create_server);    // http://localhost:3001/api/v1/server/create
+server.get('/', server_handler.get_server_list);    // http://localhost:3001/api/v1/server/
 
 // チャンネル関連のエンドポイント
 const channel = express.Router();
