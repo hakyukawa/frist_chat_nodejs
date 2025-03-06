@@ -21,7 +21,8 @@ auth.use(middleware_auth.verify_token);
 
 const user = express.Router();
 // ユーザー関連のエンドポイント
-user.get('/profile', user_handler.get_profile);         // http://localhost:3001/api/v1/user/profile
+user.get('/profile', user_handler.get_profile);
+user.get('/items', user_handler.get_items);
 // ユーザー情報取得
 user.get('/friendship', friend_handler.friendship);    // http://localhost:3001/api/v1/user/friendship
 

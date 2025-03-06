@@ -72,9 +72,27 @@ const createChannel = async (channel_id, server_id, channel_name) => {
     }
 }
 
+const get_items = async (user_id) => {
+    
+    const items = await userRepository.get_user_items(user_id);
+
+    if (!items || items.length === 0) {
+        return { status: 404, message: 'アイテムが見つかりません', items: [] };
+    }
+
+    console.log(items);
+
+    return {
+        status: 200, 
+        message: 'ユーザー保有アイテム取得成功',
+        items: items,
+    }
+}
+
 module.exports = {
     login,
     signup,
     get_profile,
     createChannel,
+    get_items,
 };

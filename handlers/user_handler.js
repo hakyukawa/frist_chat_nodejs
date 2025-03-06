@@ -66,9 +66,27 @@ const get_profile = async (req, res) => {
     });
 }
 
+const get_items = async (req, res) => {
+    const user_id = req.user_id;
+    if (!user_id) {
+        return res.status(404).json({message: 'ユーザーIDがありません'});
+    }
+
+    const result = await user_service.get_items(user_id);
+
+    res.status(result.status).json({
+        status: result.status,
+        message: result.message,
+        user_id: user_id,
+        items: result.items,
+        error: result.error || null,
+    });
+}
+
 module.exports = {
     login,
     signup,
     get_profile,
     createChannel,
+    get_items,
 }
