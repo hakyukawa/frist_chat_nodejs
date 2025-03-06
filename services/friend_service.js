@@ -61,20 +61,19 @@ const create_FriendRequest = async (user_id, receiver_id) => {
   }
 }
 
-//ユーザーのフレンドリクエストを取得する
+//クライアントのフレンドリクエストを取得する
 const get_FrinedRequest = async (user_id) => {
   try {
-    const friendRequests = await friendRepository.serch_FriendRequest(user_id); // フレンド一覧を取得
-
+    //未承認のフレンドリクエストを取得
+    const friendRequests = await friendRepository.serch_FriendRequest(user_id); // フレンドリクエストを取得
     // フレンドリクエストの送り主情報を取得
     const senderDetails = await Promise.all(
       friendRequests.map(async (friendRequest) => {
-        // フレンドIDを判定して変数に入れる
         const sender_Info = await friendRepository.get_UserMinimumInfo(friendRequest.sender_id);
         return sender_Info;
       })
     );
-    if(!friendRequests == null){
+    if(friendRequests !== null){
       return {
         status: 200,
         message: "フレンドリクエスト取得成功",

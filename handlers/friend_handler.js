@@ -50,6 +50,10 @@ const get_FrinedRequest = async (req, res, next) => {
   }
 }
 
+const response_FriendRequest = async(req, res, next) => {
+  
+}
+
 module.exports = {
   friendship,
   friendrequest,

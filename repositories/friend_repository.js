@@ -63,18 +63,18 @@ class friend_repository {
   //クライアントのフレンドリクエスト
   async serch_FriendRequest(user_id){
     try{
-      const [rows] = await pool.query('SELECT * FROM friend_request WHERE RECEIVER_ID = ?',[user_id])
+      const [rows] = await pool.query('SELECT * FROM friend_request WHERE receiver_id = ? AND status = 0',[user_id])
       // フレンドリクエストが見つからない場合
       if (rows.length === 0) {
         return null; 
       }
       return rows.map(friendRequestData => new FriendRequest(
-        friendRequestData.request_id,
-        friendRequestData.sender_id,
-        friendRequestData.receiver_id,
-        friendRequestData.status,
-        friendRequestData.created_at,
-        friendRequestData.updated_at
+        friendRequestData.REQUEST_ID,
+        friendRequestData.SENDER_ID,
+        friendRequestData.RECEIVER_ID,
+        friendRequestData.STATUS,
+        friendRequestData.CREATED_AT,
+        friendRequestData.UPDATED_AT
       ));
     }catch(err){
       throw err
@@ -82,7 +82,7 @@ class friend_repository {
   }
 
   //フレンドリクエストの結果
-  async result_FriendRequest(request_id,request_status){
+  async response_FriendRequest(request_id,request_status){
     try{
       const [result] = await pool.query('UPDATE friend')
     }catch(err){
