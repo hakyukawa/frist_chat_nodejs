@@ -51,7 +51,8 @@ const get_FrinedRequest = async (req, res, next) => {
 }
 
 const response_FriendRequest = async(req, res, next) => {
-  
+  const {request_id} = req.body;
+  const res_FriendReq = req.params.res_FriendReq
 }
 
 module.exports = {
