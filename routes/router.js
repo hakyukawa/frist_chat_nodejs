@@ -27,20 +27,23 @@ user.post('/friendrequest/:receiver_id', friend_handler.friendrequest )
 user.get('/getfrinedrequest', friend_handler.get_FrinedRequest)
 user.put('/resultfriendrequest/:res_FriendReq', friend_handler.response_FriendRequest)
 // ユーザー関連のエンドポイント
-user.get('/profile', user_handler.get_profile);
-user.get('/items', user_handler.get_items);
+user.get('/profile', user_handler.get_profile);         // http://localhost:3001/api/v1/user/profile
+user.get('/items', user_handler.get_items);             // http://localhost:3001/api/v1/user/items
 // ユーザー情報取得
 user.get('/friendship', friend_handler.friendship);    // http://localhost:3001/api/v1/user/friendship
 // サーバー関連のエンドポイント
 const server = express.Router();
 // サーバー作成
-server.post('/', server_handler.create_server);    // http://localhost:3001/api/v1/server/create
+server.post('/', server_handler.create_server);    // http://localhost:3001/api/v1/server/
+//サーバー一覧取得
 server.get('/', server_handler.get_server_list);    // http://localhost:3001/api/v1/server/
 
 // チャンネル関連のエンドポイント
 const channel = express.Router();
+// チャンネル一覧取得
+channel.get('/:server_id', server_handler.get_channel_list)   // http://localhost:3001/api/v1/server/channel/
 // チャンネル作成
-channel.post('/create', user_handler.createChannel);     // http://localhost:3001/api/v1/channel/create
+channel.post('/', user_handler.createChannel);     // http://localhost:3001/api/v1/channel/
 // メッセージ送信
 channel.post('/message', message_handler.send_message);    // http://localhost:3001/api/v1/channel/message
 // メッセージ編集

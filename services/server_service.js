@@ -50,7 +50,24 @@ const get_server_list = async (user_id) => {
     }
 }
 
+const get_channel_list = async (server_id) => {
+    try {
+        const channel_list = await server_repository.get_channel_list(server_id);
+        return {
+            status: 200,
+            message: 'チャンネルを取得しました',
+            data: channel_list
+        }
+    } catch (err) {
+        return {
+            status: 500,
+            message: `error: ${err}`
+        }
+    }
+}
+
 module.exports = {
     create_server,
-    get_server_list
+    get_server_list,
+    get_channel_list
 }
