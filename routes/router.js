@@ -20,12 +20,16 @@ const auth = express.Router();
 auth.use(middleware_auth.verify_token);
 
 const user = express.Router();
+//フレンド関係エンドポイント
+user.get('/friendship', friend_handler.friendship);
+user.post('/friendrequest/:receiver_id', friend_handler.friendrequest )
+user.get('/getfrinedrequest', friend_handler.get_FrinedRequest)
+user.put('/resultfriendrequest/:res_FriendReq', friend_handler.response_FriendRequest)
 // ユーザー関連のエンドポイント
 user.get('/profile', user_handler.get_profile);
 user.get('/items', user_handler.get_items);
 // ユーザー情報取得
 user.get('/friendship', friend_handler.friendship);    // http://localhost:3001/api/v1/user/friendship
-
 // サーバー関連のエンドポイント
 const server = express.Router();
 // サーバー作成
