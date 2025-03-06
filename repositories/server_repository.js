@@ -1,5 +1,4 @@
 const pool = require('../config/database');
-const ServerId = ('../dtos/server.js')
 const utils = require('../utils/utils');
 
 class server_repository {
@@ -13,7 +12,6 @@ class server_repository {
     };
 
     async get_server_list(user_id) {
-        console.log(user_id);
         const [server_id] = await pool.query('SELECT server_id FROM server_user WHERE user_id = ?', [user_id]);
         if (server_id.length === 0) {
             return [];
@@ -33,6 +31,14 @@ class server_repository {
         }
 
         return servers;
+    }
+
+    async get_channel_list(server_id) {
+        const [channels] = await pool.query(
+            'SELECT channel_id, channel_name FROM channel WHERE server_id = ?',
+            [server_id]
+        );
+        return channels;
     }
 }
 
