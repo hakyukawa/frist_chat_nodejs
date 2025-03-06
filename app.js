@@ -22,7 +22,7 @@ app.use('/api',routes);
 // 存在しないページへのアクセスで404を返す
 app.use((req, res, next) => {
     res.status(404).json({
-        success: false,
+        status: 404,
         message: 'ページが見つかりません',
     });
 });
