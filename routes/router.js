@@ -22,10 +22,14 @@ auth.use(middleware_auth.verify_token);
 
 const user = express.Router();
 //フレンド関係エンドポイント
+//フレンド取得
 user.get('/friendship', friend_handler.friendship);
-user.post('/friendrequest/:receiver_id', friend_handler.friendrequest )
-user.get('/getfrinedrequest', friend_handler.get_FrinedRequest)
-user.put('/resultfriendrequest/:res_FriendReq', friend_handler.response_FriendRequest)
+//フレンドリクエスト作成
+user.post('/friendrequest/:receiver_id', friend_handler.send_friendrequest )
+//フレンドリクエスト取得
+user.get('/friendrequest', friend_handler.get_friendrequest)
+//フレンドリクエスト更新
+user.put('/friendrequest/:status', friend_handler.res_friendrequest)
 // ユーザー関連のエンドポイント
 user.get('/profile', user_handler.get_profile);
 user.get('/items', user_handler.get_items);

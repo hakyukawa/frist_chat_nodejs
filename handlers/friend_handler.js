@@ -24,7 +24,7 @@ const friendship = async (req, res, next) => {
 }
 
 //フレンドリクエスト
-const friendrequest = async (req, res, next) => {
+const send_friendrequest = async (req, res, next) => {
   const user_id = req.user_id;
   const receiver_id = req.params.receiver_id
 
@@ -33,7 +33,7 @@ const friendrequest = async (req, res, next) => {
 }
 
 //フレンドリクエストを表示
-const get_FrinedRequest = async (req, res, next) => {
+const get_friendrequest = async (req, res, next) => {
   const user_id = req.user_id;
 
   try {
@@ -42,7 +42,7 @@ const get_FrinedRequest = async (req, res, next) => {
     res.status(result.status).json({
       status: result.status,
       message: result.message,
-      users: result.users || [],
+      friend_requests: result.friend_requests || [],
       error: result.error || null,
     });
   } catch (error) {
@@ -52,11 +52,12 @@ const get_FrinedRequest = async (req, res, next) => {
 }
 
 //フレンドリクエストのステータスを更新
-const response_FriendRequest = async (req, res, next) => {
+const res_friendrequest = async (req, res, next) => {
   const { request_id } = req.body;
-  const friendReq_Status = req.params.res_FriendReq
+  const friendreq_status = req.params.status
+
   try {
-    const result = await friend_service.response_FriendRequest(request_id, friendReq_Status);
+    const result = await friend_service.response_FriendRequest(request_id, friendreq_status);
     res.status(result.status).json({
       status: result.status,
       message: result.message,
@@ -71,7 +72,7 @@ const response_FriendRequest = async (req, res, next) => {
 
 module.exports = {
   friendship,
-  friendrequest,
-  get_FrinedRequest,
-  response_FriendRequest
+  send_friendrequest,
+  get_friendrequest,
+  res_friendrequest
 }
