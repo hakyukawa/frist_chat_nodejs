@@ -7,3 +7,7 @@ class Channel {
         this.created_at = created_at;
     }
 }
+
+module.exports = {
+    Channel,
+}

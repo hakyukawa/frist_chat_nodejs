@@ -9,6 +9,18 @@ const create_server = async (req, res) => {
 
 }
 
+const get_server = async (req, res) => {
+    const server_id  = req.params.id;
+    if (!server_id) {
+        return res.status(400).json('サーバーIDがありません');
+    }
+
+    const result = await server_service.get_server(server_id);
+
+    res.status(result.status).json(result);
+}
+
 module.exports = {
-    create_server
+    create_server,
+    get_server,
 }

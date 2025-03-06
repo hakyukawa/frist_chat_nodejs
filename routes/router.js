@@ -29,6 +29,8 @@ user.get('/friendship', friend_handler.friendship);    //http://localhost:3000/a
 const server = express.Router();
 // サーバー作成
 server.post('/create', server_handler.create_server);    //http://localhost:3000/api/v1/server/create
+// サーバー設定
+server.get('/:id', server_handler.get_server);
 
 // チャンネル関連のエンドポイント
 const channel = express.Router();
