@@ -9,6 +9,12 @@ const create_server = async (req, res) => {
 
 }
 
+const get_server_list = async (req, res) => {
+    const result = await server_service.get_server_list(req.user_id);
+    res.status(result.status).json(result);
+}
+
 module.exports = {
-    create_server
+    create_server,
+    get_server_list
 }

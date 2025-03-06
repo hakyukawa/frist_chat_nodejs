@@ -34,6 +34,23 @@ const create_server = async (owner_id, server_name, until_reply, start_at, end_a
     }
 };
 
+const get_server_list = async (user_id) => {
+    try {
+        const server_list = await server_repository.get_server_list(user_id);
+        return {
+            status: 200,
+            message: 'サーバーを取得しました',
+            data: server_list
+        }
+    } catch (err) {
+        return {
+            status: 500,
+            message: `error: ${err}`
+        }
+    }
+}
+
 module.exports = {
-    create_server
+    create_server,
+    get_server_list
 }

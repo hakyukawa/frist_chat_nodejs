@@ -1,5 +1,5 @@
 const pool = require('../config/database');
-const Server = require('../models/Server');
+const ServerId = ('../dtos/server.js')
 const utils = require('../utils/utils');
 
 class server_repository {
@@ -11,6 +11,29 @@ class server_repository {
         }
         return server_id;
     };
+
+    async get_server_list(user_id) {
+        console.log(user_id);
+        const [server_id] = await pool.query('SELECT server_id FROM server_user WHERE user_id = ?', [user_id]);
+        if (server_id.length === 0) {
+            return [];
+        }
+
+        const servers = [];
+        for (const server of server_id) {
+            console.log(server.server_id);
+            const [server_info] = await pool.query(
+                'SELECT server_id, server_name FROM server WHERE server_id = ?',
+                [server.server_id]
+            );
+
+            if (server_info.length > 0) {
+                servers.push(server_info[0]);
+            }
+        }
+
+        return servers;
+    }
 }
 
 module.exports = new server_repository();
