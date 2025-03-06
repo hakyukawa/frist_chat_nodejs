@@ -1,3 +1,4 @@
+const { friendrequest } = require('../handlers/friend_handler');
 const auth = require('../middleware/auth');
 const friendRepository = require('../repositories/friend_repository');
 const utils = require('../utils/utils');
@@ -48,6 +49,22 @@ const create_FriendRequest = async (user_id, receiver_id) => {
         message: 'データベースに登録出来ませんでした'
       }
     }
+    //すでにフレンドだった場合
+    if(friendRequest == "Already friends"){
+      return {
+        status: 409,
+        message: 'フレンドになっています'
+      }
+    }
+
+    //未承認のフレンドリクエスtが存在する場合
+    if(friendRequest == "Already exists"){
+      return {
+        status: 409,
+        message: '未承認フレンドリクエスト存在します'
+      }
+    }
+    //成功
     return {
       status: 200,
       message: 'フレンドリクエスト作成完了',
@@ -77,7 +94,11 @@ const get_FrinedRequest = async (user_id) => {
       return {
         status: 200,
         message: "フレンドリクエスト取得成功",
-        users: senderDetails
+        friend_requests: senderDetails.map(user => ({
+            ...user,
+            REQUEST_ID: friendRequests[0].request_id // ここでreceiver_idを追加
+        })),
+        error: null
       };
     }else{
       return {
@@ -102,6 +123,7 @@ const response_FriendRequest = async (request_id,friendReq_Status) => {
         message: 'データベースを更新出来ませんでした'
       }
     }
+
     return {
       status: 200,
       message: 'フレンドリクエストのステータスを更新しました',
