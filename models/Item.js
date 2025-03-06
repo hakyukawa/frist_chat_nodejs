@@ -27,3 +27,9 @@ class UserItem {
         this.got_at = got_at;
     }
 }
+
+module.exports = {
+    ItemType,
+    Item,
+    UserItem,
+}

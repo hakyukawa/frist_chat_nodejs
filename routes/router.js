@@ -22,6 +22,7 @@ auth.use(validate_body);
 const user = express.Router();
 // ユーザー関連のエンドポイント
 user.get('/profile', user_handler.get_profile);
+user.get('/items', user_handler.get_items);
 // ユーザー情報取得
 user.get('/friendship', friend_handler.friendship);    //http://localhost:3000/api/v1/user/friendship
 
