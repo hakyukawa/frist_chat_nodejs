@@ -34,6 +34,27 @@ const create_server = async (owner_id, server_name, until_reply, start_at, end_a
     }
 };
 
+const get_server = async (server_id) => {
+    // サーバー情報の有無・サーバー情報取得
+    const exiting_server = await server_repository.get_server_byID(server_id);
+    if (!exiting_server) {
+        return { status: 404, message: 'サーバーが存在しません' };
+    }
+
+    return {
+        status: 200,
+        message: 'サーバーの情報取得成功',
+        server_id: exiting_server.server_id,
+        owner_id: exiting_server.owner_id,
+        server_name: exiting_server.server_name,
+        until_reply: exiting_server.until_reply,
+        start_at: exiting_server.start_at,
+        end_at: exiting_server.end_at,
+        weeks: utils.getActiveDaysFromBits(exiting_server.weeks[0].toString(2)) || utils.getActiveDaysFromBits(0b0000000),
+        start_core_time: exiting_server.start_core_time,
+        end_core_time: exiting_server.end_core_time,
+        created_at: exiting_server.created_at
+    };
 const get_server_list = async (user_id) => {
     try {
         const server_list = await server_repository.get_server_list(user_id);
@@ -68,6 +89,7 @@ const get_channel_list = async (server_id) => {
 
 module.exports = {
     create_server,
+    get_server,
     get_server_list,
     get_channel_list
 }

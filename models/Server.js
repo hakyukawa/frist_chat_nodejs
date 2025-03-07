@@ -24,3 +24,8 @@ class ServerUser {
         this.joined_at = joined_at;
     }
 }
+
+module.exports = {
+    Server,
+    ServerUser,
+}

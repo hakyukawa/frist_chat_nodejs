@@ -222,6 +222,7 @@ const utils = {
         activeDays.push(days[i]);
       }
     }
+    // もし activeDays が空なら、すべての曜日を返す
     return activeDays;
   },
 

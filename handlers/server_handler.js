@@ -18,8 +18,16 @@ const get_channel_list = async (req, res) => {
     res.status(result.status).json(result);
 }
 
+const get_server = async (req, res) => {
+    const server_id  = req.params.id;
+    const result = await server_service.get_server(server_id);
+
+    res.status(result.status).json(result);
+}
+
 module.exports = {
     create_server,
+    get_server,
     get_server_list,
     get_channel_list
 }
