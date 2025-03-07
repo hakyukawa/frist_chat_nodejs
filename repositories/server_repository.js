@@ -66,6 +66,23 @@ class server_repository {
         );
         return channels;
     }
+
+    async update_server_info (server_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) {
+        const query = `
+            UPDATE server 
+            SET server_name = ?, 
+            until_reply = ?, 
+            start_at = ?, 
+            end_at = ?, 
+            weeks = ?, 
+            start_core_time = ?, 
+            end_core_time = ?
+            WHERE server_id = ?
+        `;
+        const[ updateData ] = await pool.query(query, [server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time, server_id]);
+
+        return updateData.affectedRows; // 更新された行数を返す
+    }
 }
 
 module.exports = new server_repository();
