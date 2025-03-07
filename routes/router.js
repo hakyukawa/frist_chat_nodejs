@@ -40,6 +40,7 @@ user.get('/friendship', friend_handler.friendship);    // http://localhost:3001/
 const server = express.Router();
 // サーバー設定
 server.get('/:server_id', server_handler.get_server);
+server.put('/', server_handler.update_server);
 // サーバー作成
 server.post('/', server_handler.create_server);    // http://localhost:3001/api/v1/server/
 //サーバー一覧取得
