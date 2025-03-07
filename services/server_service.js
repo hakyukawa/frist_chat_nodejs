@@ -55,6 +55,7 @@ const get_server = async (server_id) => {
         end_core_time: exiting_server.end_core_time,
         created_at: exiting_server.created_at
     };
+}
 const get_server_list = async (user_id) => {
     try {
         const server_list = await server_repository.get_server_list(user_id);

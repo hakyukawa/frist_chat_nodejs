@@ -2,6 +2,7 @@ const e = require('cors');
 const auth = require('../middleware/auth');
 const userRepository = require('../repositories/user_repository');
 const utils = require('../utils/utils');
+const user_repository = require('../repositories/user_repository');
 
 const login = async (id, password) => {
     const user = await userRepository.get_user_byID(id);
@@ -45,7 +46,7 @@ const get_profile = async (user_id) => {
     // ユーザーが存在しているか
     const exiting_uer = await userRepository.get_user_byID(user_id);
     if (!exiting_uer) {
-        return { status: 401, message: '存在しないユーザーです'};
+        return { status: 404, message: '存在しないユーザーです'};
     }
 
     const user_profile = await userRepository.get_user_profile(user_id);
@@ -80,12 +81,25 @@ const get_items = async (user_id) => {
         return { status: 404, message: 'アイテムが見つかりません', items: [] };
     }
 
-    console.log(items);
-
     return {
         status: 200, 
         message: 'ユーザー保有アイテム取得成功',
         items: items,
+    }
+}
+
+const update_profile = async (user_id, user_name, icon_url) => {
+    const exiting_uer = await user_repository.get_user_byID(user_id);
+    if (!exiting_uer) {
+        return { status: 404, message: '存在しないユーザーです' };
+    }
+
+    const updateProfile = await user_repository.update_user_profile(user_id, user_name, icon_url);
+
+    return {
+        status: 200,
+        message: 'ユーザー情報の更新に成功しました',
+        update_info: updateProfile,
     }
 }
 
@@ -95,4 +109,5 @@ module.exports = {
     get_profile,
     createChannel,
     get_items,
+    update_profile,
 };
