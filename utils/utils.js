@@ -223,7 +223,7 @@ const utils = {
       }
     }
     // もし activeDays が空なら、すべての曜日を返す
-    return activeDays.length > 0 ? activeDays : days;
+    return activeDays;
   },
 
   /**
