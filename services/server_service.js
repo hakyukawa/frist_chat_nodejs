@@ -68,6 +68,20 @@ const get_server = async (server_id, user_id) => {
             message: `error: ${err}`
         }
     }
+    return {
+        status: 200,
+        message: 'サーバーの情報取得成功',
+        server_id: exiting_server.server_id,
+        owner_id: exiting_server.owner_id,
+        server_name: exiting_server.server_name,
+        until_reply: exiting_server.until_reply,
+        start_at: exiting_server.start_at,
+        end_at: exiting_server.end_at,
+        weeks: utils.getActiveDaysFromBits(exiting_server.weeks[0].toString(2)) || utils.getActiveDaysFromBits(0b0000000),
+        start_core_time: exiting_server.start_core_time,
+        end_core_time: exiting_server.end_core_time,
+        created_at: exiting_server.created_at
+    };
 }
 // サーバーリスト
 const get_server_list = async (user_id) => {

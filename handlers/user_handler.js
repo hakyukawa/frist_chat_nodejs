@@ -83,10 +83,19 @@ const get_items = async (req, res) => {
     });
 }
 
+const update_profile = async (req, res) => {
+    const user_id = req.user_id;
+    const { user_name, icon_url } = req.body;
+    const result = await user_service.update_profile(user_id, user_name, icon_url);
+
+    res.status(result.status).json(result);
+}
+
 module.exports = {
     login,
     signup,
     get_profile,
     createChannel,
     get_items,
+    update_profile,
 }

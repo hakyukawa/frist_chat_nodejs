@@ -101,6 +101,12 @@ class user_repository {
             throw error;
         }
     }
+
+    async update_user_profile(user_id, user_name, icon_url) {
+        const [updateProfile] = await pool.query('UPDATE user SET user_name = ?, icon_url = ? WHERE user_id = ?', [user_name, icon_url, user_id]);
+
+        return updateProfile.affectedRows;
+    }
 }
 
 module.exports = new user_repository();
