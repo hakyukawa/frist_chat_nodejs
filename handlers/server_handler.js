@@ -19,8 +19,16 @@ const get_channel_list = async (req, res) => {
 }
 
 const get_server = async (req, res) => {
-    const server_id  = req.params.id;
-    const result = await server_service.get_server(server_id);
+    const user_id = req.user_id;
+    const server_id  = req.params.server_id;
+    const result = await server_service.get_server(server_id, user_id);
+
+    res.status(result.status).json(result,);
+}
+
+const update_server = async (req, res) => {
+    const { server_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time } = req.body;
+    const result = await server_service.update_server(server_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time);
 
     res.status(result.status).json(result);
 }
@@ -28,6 +36,7 @@ const get_server = async (req, res) => {
 module.exports = {
     create_server,
     get_server,
+    update_server,
     get_server_list,
     get_channel_list
 }
