@@ -55,9 +55,41 @@ const get_server = async (server_id) => {
         end_core_time: exiting_server.end_core_time,
         created_at: exiting_server.created_at
     };
+const get_server_list = async (user_id) => {
+    try {
+        const server_list = await server_repository.get_server_list(user_id);
+        return {
+            status: 200,
+            message: 'サーバーを取得しました',
+            data: server_list
+        }
+    } catch (err) {
+        return {
+            status: 500,
+            message: `error: ${err}`
+        }
+    }
+}
+
+const get_channel_list = async (server_id) => {
+    try {
+        const channel_list = await server_repository.get_channel_list(server_id);
+        return {
+            status: 200,
+            message: 'チャンネルを取得しました',
+            data: channel_list
+        }
+    } catch (err) {
+        return {
+            status: 500,
+            message: `error: ${err}`
+        }
+    }
 }
 
 module.exports = {
     create_server,
     get_server,
+    get_server_list,
+    get_channel_list
 }

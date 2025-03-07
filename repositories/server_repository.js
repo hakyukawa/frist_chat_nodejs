@@ -34,24 +34,37 @@ class server_repository {
                 serverData.CREATED_AT
             );
         } catch (error) {
-            throw error;
+            return error;
         }
     }
-
-    async get_channel_byID(channel_id) {
-        const [ result ] = pool.query('SELECT * FROM channel WHERE channel_id = ?', [ channel_id ]);
-
-        if (result.length === 0) {
-            return null;
+    async get_server_list(user_id) {
+        const [server_id] = await pool.query('SELECT server_id FROM server_user WHERE user_id = ?', [user_id]);
+        if (server_id.length === 0) {
+            return [];
         }
 
-        const channelData = result[0];
-        return new Channel (
-            channelData.CHANNEL_ID,
-            channelData.SERVER_ID,
-            channelData.CHANNEL_NAME,
-            channelData.CREATED_AT
+        const servers = [];
+        for (const server of server_id) {
+            console.log(server.server_id);
+            const [server_info] = await pool.query(
+                'SELECT server_id, server_name FROM server WHERE server_id = ?',
+                [server.server_id]
+            );
+
+            if (server_info.length > 0) {
+                servers.push(server_info[0]);
+            }
+        }
+
+        return servers;
+    }
+
+    async get_channel_list(server_id) {
+        const [channels] = await pool.query(
+            'SELECT channel_id, channel_name FROM channel WHERE server_id = ?',
+            [server_id]
         );
+        return channels;
     }
 }
 
