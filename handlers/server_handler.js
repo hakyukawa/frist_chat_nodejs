@@ -34,10 +34,18 @@ const update_server = async (req, res) => {
     res.status(result.status).json(result);
 }
 
+const get_server_member = async (req, res) => {
+    const server_id = req.params.server_id;
+    const result = await server_service.get_server_member(server_id);
+
+    res.status(result.status).json(result);
+}
+
 module.exports = {
     create_server,
     get_server,
     update_server,
     get_server_list,
-    get_channel_list
+    get_channel_list,
+    get_server_member,
 }

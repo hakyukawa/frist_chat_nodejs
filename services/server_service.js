@@ -1,6 +1,7 @@
 const e = require('express');
 const server_repository = require('../repositories/server_repository');
 const utils = require('../utils/utils');
+const user_repository = require('../repositories/user_repository');
 
 // サーバー作成
 const create_server = async (owner_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) => {
@@ -68,20 +69,6 @@ const get_server = async (server_id, user_id) => {
             message: `error: ${err}`
         }
     }
-    return {
-        status: 200,
-        message: 'サーバーの情報取得成功',
-        server_id: exiting_server.server_id,
-        owner_id: exiting_server.owner_id,
-        server_name: exiting_server.server_name,
-        until_reply: exiting_server.until_reply,
-        start_at: exiting_server.start_at,
-        end_at: exiting_server.end_at,
-        weeks: utils.getActiveDaysFromBits(exiting_server.weeks[0].toString(2)) || utils.getActiveDaysFromBits(0b0000000),
-        start_core_time: exiting_server.start_core_time,
-        end_core_time: exiting_server.end_core_time,
-        created_at: exiting_server.created_at
-    };
 }
 // サーバーリスト
 const get_server_list = async (user_id) => {
@@ -147,10 +134,50 @@ const update_server = async (server_id, server_name, until_reply, start_at, end_
     }
 }
 
+const get_server_member = async (server_id) => {
+    try {
+        // サーバー情報取得
+        const server = await server_repository.get_server_byID(server_id);
+        if (!server) {
+            return { status: 404, message: 'このサーバーは存在しません' }
+        }
+        // サーバーのメンバー取得
+        const server_member = await server_repository.get_server_member(server_id);
+        if (!server_member) {
+            return { status: 404, message: 'このサーバーにユーザーはいません' }
+        }
+        // オーナーが誰かどうか
+        let owner_id = null;
+        server_member.forEach((member) => {
+            if (member.user_id === server.owner_id) {
+                owner_id =  member.user_id;
+            }
+        });
+        // メンバーのユーザーIDとユーザー名取得
+        const members = await Promise.all(
+            server_member.map((member) => user_repository.get_user_info(member.user_id))
+        );
+            
+        return {
+            status: 200,
+            message: 'サーバーメンバー取得成功',
+            owner: owner_id,
+            members: members,
+        }
+    } catch (err) {
+        return {
+            status: 500,
+            message: 'サーバーメンバーの取得に失敗しました',
+            message: `error: ${err}`,
+        }
+    }
+}
+
 module.exports = {
     create_server,
     get_server,
     update_server,
     get_server_list,
-    get_channel_list
+    get_channel_list,
+    get_server_member,
 }

@@ -45,6 +45,8 @@ server.put('/:server_id', server_handler.update_server);
 server.post('/', server_handler.create_server);    // http://localhost:3001/api/v1/server/
 //サーバー一覧取得
 server.get('/', server_handler.get_server_list);    // http://localhost:3001/api/v1/server/
+// サーバーメンバー一覧
+server.get('/members/:server_id', server_handler.get_server_member);
 
 // チャンネル関連のエンドポイント
 const channel = express.Router();

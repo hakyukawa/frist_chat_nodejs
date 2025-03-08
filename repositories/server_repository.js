@@ -3,6 +3,7 @@ const { Channel } = require('../models/Channel');
 const { Server } = require('../models/Server');
 const utils = require('../utils/utils');
 
+
 class server_repository {
     // サーバー作成
     async create_server(owner_id, server_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) {
@@ -82,6 +83,15 @@ class server_repository {
         const[ updateData ] = await pool.query(query, [server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time, server_id]);
 
         return updateData.affectedRows; // 更新された行数を返す
+    }
+
+    async get_server_member(server_id) {
+        const [ server_member ] = await pool.query('SELECT user_id FROM server_user WHERE server_id = ?', [server_id]);
+        if (server_member.length === 0) {
+            return null;
+        }
+
+        return server_member;
     }
 }
 
