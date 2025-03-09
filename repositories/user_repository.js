@@ -3,6 +3,7 @@ const pool = require('../config/database');
 const User = require('../models/User');
 const { item_simple_response } = require('../dtos/item');
 const { Item } = require('../models/Item');
+const { get_user_twoinfo } = require('../dtos/user');
 
 class user_repository {
     async get_user_byID(id) {
@@ -106,6 +107,24 @@ class user_repository {
         const [updateProfile] = await pool.query('UPDATE user SET user_name = ?, icon_url = ? WHERE user_id = ?', [user_name, icon_url, user_id]);
 
         return updateProfile.affectedRows;
+    }
+
+    async get_user_info (user_id) {
+        try {
+            const [ rows ] = await  pool.query('SELECT user_id, user_name, icon_url FROM user WHERE user_id = ?', [user_id]);
+
+            if (!rows.length === 0) {
+                return null; // ユーザー情報見つからない
+            }
+            const userData = rows[0];
+            return new get_user_twoinfo (
+                userData.user_id,
+                userData.user_name,
+                userData.icon_url,
+            );
+        } catch (error) {
+            return error;
+        }
     }
 }
 
