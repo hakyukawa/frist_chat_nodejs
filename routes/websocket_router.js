@@ -61,7 +61,7 @@ function setup_web_socket(server) {
             const user_servers = await server_repository.get_server_list(user_id);
             let user_channels = [];
             if (user_servers && user_servers.length > 0) {
-                console.log(user_servers);
+                //console.log(user_servers);
                 // Promise.allを使って複数の非同期処理を並行実行
                 const channelsPromises = user_servers.map(server => 
                     server_repository.get_channel_list(server.server_id)
