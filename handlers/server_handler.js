@@ -27,7 +27,8 @@ const get_server = async (req, res) => {
 }
 
 const update_server = async (req, res) => {
-    const { server_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time } = req.body;
+    const server_id = req.params.server_id;
+    const { server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time } = req.body;
     const result = await server_service.update_server(server_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time);
 
     res.status(result.status).json(result);
