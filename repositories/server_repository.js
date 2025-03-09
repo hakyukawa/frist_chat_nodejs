@@ -46,7 +46,6 @@ class server_repository {
 
         const servers = [];
         for (const server of server_id) {
-            console.log(server.server_id);
             const [server_info] = await pool.query(
                 'SELECT server_id, server_name FROM server WHERE server_id = ?',
                 [server.server_id]
@@ -92,6 +91,15 @@ class server_repository {
         }
 
         return server_member;
+    }
+
+    async get_channel_member(channel_id) {
+        const [ server ] = await pool.query('SELECT server_id FROM channel WHERE channel_id = ?', [channel_id]);
+        if (server.length === 0) {
+            return null;
+        }
+        const [channel_users] = await pool.query('SELECT user_id FROM server_user WHERE  server_id = ?', [server[0].server_id]);
+        return channel_users;
     }
 }
 

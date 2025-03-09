@@ -1,8 +1,10 @@
 const WebSocket = require('ws');
 const middleware_auth = require('../middleware/auth');
 const websocket_handler = require('../handlers/websocket_handler');
-const server_handler = require('../services/server_handler');
+const server_handler = require('../handlers/server_handler');
 const { URL } = require('url');
+const user_repository = require('../repositories/user_repository');
+const server_repository = require('../repositories/server_repository');
 
 
 function setup_web_socket(server) {
@@ -13,6 +15,8 @@ function setup_web_socket(server) {
     });
 
     const clients = new Map();
+
+    const user_info = new Map();
 
     // WebSocket接続イベント
     wss.on('connection', async (ws, req) => {
@@ -40,22 +44,50 @@ function setup_web_socket(server) {
             const decoded = middleware_auth.decode_token(auth_token);
             const user_id = decoded.user_id;
 
+            const user = await user_repository.get_user_profile(user_id);
+            if (!user_id) {
+                ws.close(4002, 'ws:認証トークンの検証中にエラーが発生しました');
+                return;
+            }
+
             ws.user_id = user_id;
             ws.isAlive = true;
-            
-            const user_channels = server_handler.get_user_channel(user_id);
+
+            user_info.set(user_id, {
+                user_id: user_id,
+                user_name: user.user_name,
+                user_image: user.user_image
+            });
+            const user_servers = await server_repository.get_server_list(user_id);
+            let user_channels = [];
+            if (user_servers && user_servers.length > 0) {
+                console.log(user_servers);
+                // Promise.allを使って複数の非同期処理を並行実行
+                const channelsPromises = user_servers.map(server => 
+                    server_repository.get_channel_list(server.server_id)
+                );
+                const allChannels = await Promise.all(channelsPromises);
+                
+                // すべてのチャンネルを1つの配列にフラット化
+                user_channels = allChannels.flat();
+            }
+            console.log(user_channels);
 
             // WebSocketクライアントを追加
             clients.set(user_id, ws);
 
-            const user_channel = websocket_handler.get_user_channel(user_id);
-            if (user_channel) {
-                websocket_handler.malticast_to_channel(user_channel, {
-                    type: 'connection',
-                    status: 'success',
-                    user_id: user_id,
-                    message: 'WebSocket接続に成功しました'
-                }, clients);
+            console.log(`WebSocket接続: ${user_id}`);
+            // オンラインステータスの通知
+            if (user_channels && user_channels.length > 0) {
+                // 所属しているすべてのチャンネルにユーザーのオンライン状態を通知
+                user_channels.forEach(channel => {
+                    websocket_handler.multicast_to_channel(channel.channel_id, {
+                        type: 'user_status',
+                        user_id: user_id,
+                        status: 'online',
+                        timestamp: new Date()
+                    }, clients);
+                });
             }
 
             ws.send(JSON.stringify({
@@ -68,6 +100,11 @@ function setup_web_socket(server) {
             // 接続状況をpingで維持
             ws.on('pong', () => {
                 ws.isAlive = true;
+                if (user_info.has(user_id)) {
+                    const info = user_info.get(user_id);
+                    info.last_activity = new Date();
+                    user_info.set(user_id, info);
+                }
             });
 
             //メッセージ受信処理
@@ -86,7 +123,13 @@ function setup_web_socket(server) {
 
             // クライアントの切断処理
             ws.on('close', () => {
-                websocket_handler.handle_isconnect(user_id, clients);
+                if (user_info.has(user_id)) {
+                    const info = user_info.get(user_id);
+                    info.online = false;
+                    info.last_activity = new Date();
+                    user_info.set(user_id, info);
+                }
+                websocket_handler.handle_disconnect(user_id, clients, user_info);
             });
         
         } catch (error) {
@@ -96,15 +139,21 @@ function setup_web_socket(server) {
     });
 
     //接続維持用のping処理
-    const interval =setInterval(() => {
+    const interval = setInterval(() => {
         wss.clients.forEach((ws) => {
             if (ws.isAlive === false) {
+                // ユーザー情報を更新
+                if (ws.user_id && user_info.has(ws.user_id)) {
+                    const info = user_info.get(ws.user_id);
+                    info.online = false;
+                    user_info.set(ws.user_id, info);
+                }
                 return ws.terminate();
             }
             ws.isAlive = false;
             ws.ping();
-        })
-    }, 30000)   // 30秒間隔
+        });
+    }, 30000);   // 30秒間隔
 
     wss.on('close', () => {
         clearInterval(interval);
@@ -112,8 +161,9 @@ function setup_web_socket(server) {
 
     // グローバル変数としてclientsを公開
     global.ws_clients = clients;
+    global.user_info = user_info;
 
-    return { wss, clients };
+    return { wss, clients, user_info };
 }
 
 module.exports = setup_web_socket;

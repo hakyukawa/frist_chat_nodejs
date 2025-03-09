@@ -5,12 +5,12 @@ const config = require('./config/config');
 const setup_cors = require('./middleware/cors');
 const routes = require('./routes/router');
 const db = require('./db');
+const setup_web_socket = require('./routes/websocket_router');
 
 db.initializeDatabase();
 
 const app = express();
 const server = createServer(app);
-const wss = new web_socket.Server({ server });
 
 // ミドルウェア設定
 app.use(express.json());
@@ -18,6 +18,8 @@ setup_cors(app);
 
 // ルーター
 app.use('/api',routes);
+
+const {wss, clients, user_info} = setup_web_socket(server);
 
 // 存在しないページへのアクセスで404を返す
 app.use((req, res, next) => {
@@ -28,7 +30,7 @@ app.use((req, res, next) => {
 });
 
 // サーバー起動
-app.listen(config.server.port, () => {
+server.listen(config.server.port, () => {
   console.log(`サーバーが起動しました: http://localhost:${config.server.port}`);
 });
 
