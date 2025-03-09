@@ -75,9 +75,29 @@ const generate_refresh_token = (payload) => {
     return jwt.sign(payload, config.jwt.refresh_secret, { expiresIn: config.jwt.refresh_token_expiry });
 };
 
+// WebSocketで使用するためのJWTデコード関数
+const decode_token = (token) => {
+    try {
+        if (!token) {
+            throw new Error('トークンが提供されていません');
+        }
+        
+        // Bearer プレフィックスの除去（存在する場合）
+        if (token.startsWith('Bearer ')) {
+            token = token.slice(7);
+        }
+        
+        const decoded = jwt.verify(token, config.jwt.secret);
+        return decoded;
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     verify_token,
     verify_refresh_token,
     generate_access_token,
-    generate_refresh_token
+    generate_refresh_token,
+    decode_token
 };

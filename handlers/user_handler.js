@@ -9,6 +9,22 @@ const login = async (req, res, next) => {
     const { user_id, password } = req.body;
     const result = await user_service.login(user_id, password);
 
+    if (result.status === 200 && global.ws_clients) {
+        // WebSocketの接続準備情報をレスポンスに追加
+        result.ws_endpoint = `ws://${req.headers.host}/api/v1/ws?token=${result.access_token}`;
+        
+        // すでにWebSocketが接続されている場合は、ユーザー情報を更新
+        const existingSocket = global.ws_clients.get(user_id);
+        if (existingSocket) {
+            const log = existingSocket.send(JSON.stringify({
+                type: 'auth_refresh',
+                message: 'ログイン情報が更新されました',
+                user_id: user_id
+            }));
+            console.log(log);
+        }
+    }
+
     res.status(result.status).json({
         message: result.message,
         access_token: result.access_token || null,
