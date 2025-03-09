@@ -48,7 +48,7 @@ server.get('/', server_handler.get_server_list);    // http://localhost:3001/api
 // サーバーメンバー一覧
 server.get('/members/:server_id', server_handler.get_server_members);
 // サーバーメンバーではないフレンド一覧
-server.get('/Non_members/:server_id', server_handler.get_Non_server_members);
+server.get('/notmember/:server_id', server_handler.get_Non_server_members);
 
 // チャンネル関連のエンドポイント
 const channel = express.Router();
