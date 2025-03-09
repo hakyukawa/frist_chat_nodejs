@@ -2,6 +2,7 @@ const e = require('express');
 const server_repository = require('../repositories/server_repository');
 const utils = require('../utils/utils');
 const user_repository = require('../repositories/user_repository');
+const friend_repository = require('../repositories/friend_repository');
 
 // サーバー作成
 const create_server = async (owner_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) => {
@@ -134,7 +135,7 @@ const update_server = async (server_id, server_name, until_reply, start_at, end_
     }
 }
 
-const get_server_member = async (server_id) => {
+const get_server_members = async (server_id) => {
     try {
         // サーバー情報取得
         const server = await server_repository.get_server_byID(server_id);
@@ -142,25 +143,26 @@ const get_server_member = async (server_id) => {
             return { status: 404, message: 'このサーバーは存在しません' }
         }
         // サーバーのメンバー取得
-        const server_member = await server_repository.get_server_member(server_id);
-        if (!server_member) {
+        const server_members = await server_repository.get_server_members(server_id);
+        if (!server_members) {
             return { status: 404, message: 'このサーバーにユーザーはいません' }
         }
         // オーナーが誰かどうか
         let owner_id = null;
-        server_member.forEach((member) => {
+        server_members.forEach((member) => {
             if (member.user_id === server.owner_id) {
                 owner_id =  member.user_id;
             }
         });
         // メンバーのユーザーIDとユーザー名取得
         const members = await Promise.all(
-            server_member.map((member) => user_repository.get_user_info(member.user_id))
+            server_members.map((member) => user_repository.get_user_info(member.user_id))
         );
             
         return {
             status: 200,
             message: 'サーバーメンバー取得成功',
+            server_id: server_id,
             owner: owner_id,
             members: members,
         }
@@ -173,11 +175,58 @@ const get_server_member = async (server_id) => {
     }
 }
 
+const get_Non_server_members = async (user_id, server_id) => {
+    try {
+        // サーバー情報取得
+        const server = await server_repository.get_server_byID(server_id);
+        if (!server) {
+            return { status: 404, message: 'このサーバーは存在しません' }
+        }
+        // friendship
+        const user_friends = await friend_repository.get_friendID(user_id);
+        if (!user_friends) {
+            return { status: 404, message: 'フレンドはいません' }
+        }
+        //server_user
+        const server_members = await server_repository.get_server_members(server_id);
+        if (!server_members) {
+            return { status: 404, message: 'このサーバーにユーザーはいません' }
+        }
+
+        let user_friendIDs = [];
+        user_friends.forEach((friend) => {
+            server_members.forEach((member) => {
+                if (friend.user_id_1 !== member.user_id && friend.user_id_1 !== server.owner_id) {
+                    user_friendIDs.push({user_id: friend.user_id_1});
+                }
+            });
+        });
+
+        const user_info = await Promise.all(
+            user_friendIDs.map((friendID) => user_repository.get_user_info(friendID.user_id))
+        );
+
+        return {
+            status: 200,
+            message: 'サーバ未所属ユーザー情報取得成功',
+            Non_members: user_info || [],
+        }
+        
+    } catch (err) {
+        return {
+            status: 500,
+            message: 'サーバー未所属メンバーの取得に失敗しました',
+            message: `error: ${err}`,
+        }
+    }
+}
+
 module.exports = {
     create_server,
     get_server,
     update_server,
     get_server_list,
     get_channel_list,
-    get_server_member,
+    get_server_members,
+    get_Non_server_members,
 }

@@ -85,13 +85,13 @@ class server_repository {
         return updateData.affectedRows; // 更新された行数を返す
     }
 
-    async get_server_member(server_id) {
-        const [ server_member ] = await pool.query('SELECT user_id FROM server_user WHERE server_id = ?', [server_id]);
-        if (server_member.length === 0) {
+    async get_server_members(server_id) {
+        const [ server_members ] = await pool.query('SELECT user_id FROM server_user WHERE server_id = ?', [server_id]);
+        if (server_members.length === 0) {
             return null;
         }
 
-        return server_member;
+        return server_members;
     }
 }
 
