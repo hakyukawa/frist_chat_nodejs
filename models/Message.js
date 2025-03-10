@@ -12,14 +12,14 @@ class Message {
 
 // 既読、未読
 class ReadStatus {
-    constructor(channel_id, user_id, last_read_message_id, last_message_id, unread_count, last_viewed_at, last_updated_id) {
+    constructor(channel_id, user_id, last_read_message_id, last_message_id, unread_count, last_viewed_at, last_updated_at) {
         this.channel_id = channel_id;
         this.user_id = user_id;
         this.last_read_message_id = last_read_message_id;
         this.last_message_id = last_message_id;
         this.unread_count = unread_count || 0;
         this.last_viewed_at = last_viewed_at;
-        this.last_updated_id = last_updated_id;
+        this.last_updated_at = last_updated_at;
     }
 }
 

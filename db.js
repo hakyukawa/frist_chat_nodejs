@@ -396,7 +396,7 @@ async function insertTestData(connection, tableName) {
             LAST_MESSAGE_ID: messageData[0].MESSAGE_ID,
             UNREAD_COUNT: 0,
             LAST_VIEWED_AT: utils.getCurrentDateTime(),
-            LAST_UPDATED_ID: utils.getCurrentDateTime()
+            LAST_UPDATED_AT: utils.getCurrentDateTime()
           };
           await connection.query('INSERT INTO read_status SET ?', readStatus);
           utils.logInfo('既読ステータステストデータを挿入しました');

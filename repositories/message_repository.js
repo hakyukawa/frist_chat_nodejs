@@ -90,7 +90,7 @@ class message_repository{
                     AND m.message_id > r.last_read_message_id
                 ) as unread_count,
                 last_viewed_at,
-                last_updated_id
+                last_updated_at
             FROM read_status r
             WHERE channel_id = ? AND user_id = ?
         `;
@@ -109,7 +109,7 @@ class message_repository{
             result[0].last_message_id,
             result[0].unread_count,
             result[0].last_viewed_at,
-            result[0].last_updated_id
+            result[0].last_updated_at
         );
     }
 
@@ -121,7 +121,7 @@ class message_repository{
             SET last_read_message_id = ?,
                 last_message_id = ?,
                 unread_count = ?,
-                last_updated_id = ?
+                last_updated_at = ?
             WHERE channel_id = ? AND user_id = ?
             `;
 
