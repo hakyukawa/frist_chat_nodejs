@@ -46,6 +46,7 @@ async function handle_chat_message(ws, data, clients, user_info) {
             type: 'chat_message',
             channel_id: data.channel_id,
             message: data.message,
+            message_id: message_id,
             sender: {
                 user_id: user.user_id,
                 user_name: user.user_name,
@@ -53,6 +54,8 @@ async function handle_chat_message(ws, data, clients, user_info) {
             },
             timestamp: new Date()
         }, clients);
+
+        await channel_state_manager.updateAllActiveUsersReadStatus(data.channel_id, message_id);
         // 送信確認をクライアントに送信
         ws.send(JSON.stringify({
             type: 'message_sent',
@@ -138,6 +141,8 @@ function notify_new_message(message) {
             edited_at: message.edited_at
         }
     }, clients);
+
+    channel_state_manager.updateAllActiveUsersReadStatus(message.channel_id, message.message_id);
     
     return true;
 }
@@ -170,6 +175,9 @@ const channel_state_manager = {
             this.activeUsers.set(channelId, new Set());
         }
         this.activeUsers.get(channelId).add(userId);
+
+        // チャンネルがアクティブになったら既読状態を更新
+        this.updateReadStatus(userId, channelId);
     },
     
     setInactive(userId, channelId) {
@@ -181,6 +189,33 @@ const channel_state_manager = {
     getActiveUsers(channelId) {
         return this.activeUsers.has(channelId) ? 
             Array.from(this.activeUsers.get(channelId)) : [];
+    },
+
+    // 全てのアクティブユーザーの既読状態を更新
+    async updateAllActiveUsersReadStatus(channel_id, message_id) {
+        if (this.activeUsers.has(channel_id)) {
+            const activeUsers = this.activeUsers.get(channel_id);
+            const updatePromises = [];
+            
+            for (const userId of activeUsers) {
+                updatePromises.push(server_repository.update_read_status(channel_id, user_id, message_id));
+            }
+            
+            await Promise.all(updatePromises);
+        }
+    },
+
+    // ユーザーの既読状態を更新
+    async updateReadStatus(userId, channelId) {
+        // 最新のメッセージIDを取得
+        try {
+            const lastMessageInfo = await message_service.get_last_message(channelId);
+            if (lastMessageInfo && lastMessageInfo.message_id) {
+                await server_repository.update_read_status(channelId, userId, lastMessageInfo.message_id);
+            }
+        } catch (error) {
+            console.error('既読状態の更新に失敗しました:', error);
+        }
     }
 };
 

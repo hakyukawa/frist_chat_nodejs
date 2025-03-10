@@ -49,8 +49,14 @@ const get_message = async (req, res) => {
     res.status(response.status).json(response);
 };
 
+const update_unread_count = async (req, res) => {
+    const response = await message_service.update_unread_count(req.params.channel_id, req.body.last_message_id);
+    res.status(response.status).json(response);
+};
+
 module.exports = {
     send_message,
     edit_message,
-    get_message
+    get_message,
+    update_unread_count
 };

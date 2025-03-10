@@ -123,6 +123,46 @@ class message_service {
             }
         }
     }
+
+    async update_unread_count(channel_id, last_message_id) {
+        try {
+            const response = await message_repository.update_unread_count(channel_id, last_message_id);
+            if(response.affectedRows === 0) {
+                return {
+                    status: 404,
+                    message: 'チャンネルが見つかりません'
+                }
+            }
+            return {
+                status: 200,
+                message: '既読状態を更新しました',
+                data: channel_id
+            }
+        } catch (error) {
+            return {
+                status: 500,
+                message: `エラーが発生しました error: ${error}`
+            }
+        }
+        
+    }
+
+    async get_last_message(channel_id) {
+        try {
+            const query = `
+                SELECT message_id, created_at
+                FROM messages
+                WHERE channel_id = ?
+                ORDER BY created_at DESC
+                LIMIT 1
+            `;
+            const [rows] = await pool.query(query, [channel_id]);
+            return rows.length > 0 ? rows[0] : null;
+        } catch (error) {
+            console.error('最新メッセージの取得エラー:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = new message_service();

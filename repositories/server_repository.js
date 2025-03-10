@@ -121,6 +121,16 @@ class server_repository {
         const [channel_users] = await pool.query('SELECT user_id FROM server_user WHERE  server_id = ?', [server[0].server_id]);
         return channel_users;
     }
+
+    async update_read_status(channel_id, user_id, last_channel_message_id) {
+        const query = `
+            INSERT INTO read_status (user_id, channel_id, last_read_message_id, last_viewed_at, unread_count)
+            VALUES (?, ?, ?, NOW(), 0)
+            ON DUPLICATE KEY UPDATE last_viewed_at = NOW(), last_read_message_id = ?, unread_count = 0
+        `;
+        const [result] = await pool.query(query, [user_id, channel_id, last_channel_message_id, last_channel_message_id]);
+        return result.affectedRows > 0;
+    }
 }
 
 module.exports = new server_repository();
