@@ -146,6 +146,23 @@ class message_service {
         }
         
     }
+
+    async get_last_message(channel_id) {
+        try {
+            const query = `
+                SELECT message_id, created_at
+                FROM messages
+                WHERE channel_id = ?
+                ORDER BY created_at DESC
+                LIMIT 1
+            `;
+            const [rows] = await pool.query(query, [channel_id]);
+            return rows.length > 0 ? rows[0] : null;
+        } catch (error) {
+            console.error('最新メッセージの取得エラー:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = new message_service();
