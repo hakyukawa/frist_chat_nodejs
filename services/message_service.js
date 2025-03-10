@@ -123,6 +123,29 @@ class message_service {
             }
         }
     }
+
+    async update_unread_count(channel_id, last_message_id) {
+        try {
+            const response = await message_repository.update_unread_count(channel_id, last_message_id);
+            if(response.affectedRows === 0) {
+                return {
+                    status: 404,
+                    message: 'チャンネルが見つかりません'
+                }
+            }
+            return {
+                status: 200,
+                message: '既読状態を更新しました',
+                data: channel_id
+            }
+        } catch (error) {
+            return {
+                status: 500,
+                message: `エラーが発生しました error: ${error}`
+            }
+        }
+        
+    }
 }
 
 module.exports = new message_service();

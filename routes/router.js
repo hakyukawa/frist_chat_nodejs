@@ -60,8 +60,10 @@ channel.post('/', user_handler.createChannel);     // http://localhost:3001/api/
 channel.post('/message', message_handler.send_message);    // http://localhost:3001/api/v1/channel/message
 // メッセージ編集
 channel.put('/message/:message_id', message_handler.edit_message);     // http://localhost:3001/api/v1/channel/message/:message_id
-//メッセージ取得
+// メッセージ取得
 channel.get('/message/:channel_id', message_handler.get_message);    // http://localhost:3001/api/v1/channel/message/:channel_id
+// 未読件数を更新
+channel.put('/count/:channel_id', message_handler.update_unread_count);     // http://localhost:3001/api/v1/channel/count
 
 //　エンドポイントをマウント
 server.use('/channel', channel);

@@ -140,6 +140,12 @@ class message_repository{
             throw error;
         }
     }
+
+    //未読件数更新処理
+    async update_unread_count(channel_id, last_message_id) {
+        const [result] = await pool.query('UPDATE read_status SET unread_count = unread_count + 1, last_message_id = ? WHERE channel_id = ?', [last_message_id, channel_id]);
+        return result;
+    }
 }
 
 module.exports = new message_repository();
