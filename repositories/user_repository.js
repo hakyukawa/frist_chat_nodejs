@@ -82,7 +82,33 @@ class user_repository {
 
             return {channel_id, channel_name};
         } catch (error) {
-            throw error;
+            console.error("insert_server_user Error:", error);
+            return null;
+        }
+    }
+
+    // リードステータスにユーザー追加
+    async insert_readstatus(user_id, channel_id, last_read_message_id, last_message_id, unread_count, last_viewed_at, last_updated_id) {
+        try {
+            const query = `
+                INSERT INTO read_status
+                (
+                    channel_id, user_id, 
+                    last_read_message_id, 
+                    last_message_id, unread_count, 
+                    last_viewed_at, last_updated_at
+                ) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `;
+            const [ rows ] = await pool.query(query, [channel_id, user_id, last_read_message_id, last_message_id, unread_count, last_viewed_at, last_updated_id]);
+
+            if (rows.affectedRows === 0) {
+                return null;
+            }
+            return rows.affectedRows;
+        } catch (error) {
+            console.error("insert_server_user Error:", error);
+            return null;
         }
     }
 
