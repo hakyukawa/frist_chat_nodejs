@@ -3,15 +3,17 @@ const server_repository = require('../repositories/server_repository');
 const utils = require('../utils/utils');
 const user_repository = require('../repositories/user_repository');
 const friend_repository = require('../repositories/friend_repository');
+const { error } = require('console');
 
 // サーバー作成
-const create_server = async (owner_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) => {
+const create_server = async (owner_id, server_name, icon_url, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) => {
     const server_id = utils.generateUUID();
     try {
         const server = await server_repository.create_server(
             owner_id,
             server_id,
             server_name,
+            icon_url,
             utils.formatTimeForMySQL(until_reply),
             utils.formatTimeForMySQL(start_at),
             utils.formatTimeForMySQL(end_at),
@@ -19,6 +21,13 @@ const create_server = async (owner_id, server_name, until_reply, start_at, end_a
             utils.formatTimeForMySQL(start_core_time),
             utils.formatTimeForMySQL(end_core_time)
         );
+        const server_user = await server_repository.insert_server_user(server_id, owner_id, false, utils.getCurrentDateTime(), utils.getCurrentDateTime());
+        if (server_user === null) {
+            return {
+                status: 500,
+                message: 'サーバーユーザーの登録に失敗しました'
+            }
+        }
         if(!server) {
             return {
                 status: 500,
@@ -55,6 +64,7 @@ const get_server = async (server_id, user_id) => {
             server_id: exiting_server.server_id,
             owner_id: exiting_server.owner_id,
             server_name: exiting_server.server_name,
+            icon_url: exiting_server.icon_url,
             until_reply: exiting_server.until_reply,
             start_at: exiting_server.start_at,
             end_at: exiting_server.end_at,
@@ -104,11 +114,12 @@ const get_channel_list = async (server_id) => {
     }
 }
 // サーバー設定情報更新
-const update_server = async (server_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) => {
+const update_server = async (server_id, server_name, icon_url, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) => {
     try {
         const updateServer = await server_repository.update_server_info(
             server_id,
             server_name,
+            icon_url,
             utils.formatTimeForMySQL(until_reply),
             utils.formatTimeForMySQL(start_at),
             utils.formatTimeForMySQL(end_at),

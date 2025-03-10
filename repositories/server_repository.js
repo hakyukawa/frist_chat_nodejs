@@ -6,13 +6,31 @@ const utils = require('../utils/utils');
 
 class server_repository {
     // サーバー作成
-    async create_server(owner_id, server_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) {
-        const [result] = await pool.query('INSERT INTO server (SERVER_ID, OWNER_ID, SERVER_NAME, UNTIL_REPLY, START_AT, END_AT, WEEKS, START_CORE_TIME, END_CORE_TIME, CREATED_AT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [server_id, owner_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time, utils.getCurrentDateTime()])
-        if(result.affectedRows === 0) {
+    async create_server(owner_id, server_id, server_name, icon_url, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) {
+        try {
+            const [result] = await pool.query('INSERT INTO server (SERVER_ID, OWNER_ID, SERVER_NAME, ICON_URL, UNTIL_REPLY, START_AT, END_AT, WEEKS, START_CORE_TIME, END_CORE_TIME, CREATED_AT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [server_id, owner_id, server_name, icon_url, until_reply, start_at, end_at, weeks, start_core_time, end_core_time, utils.getCurrentDateTime()])
+            if(result.affectedRows === 0) {
+                return null;
+            }
+            return server_id;
+        } catch (error) {
+            console.error("insert_server_user Error:", error);
             return null;
         }
-        return server_id;
     };
+
+    async insert_server_user(server_id, user_id, is_muted, last_activity, joined_at) {
+        try {
+            const [ result ] = await pool.query('INSERT INTO server_user (server_id, user_id, is_muted, last_activity, joined_at) VALUES (?, ?, ?, ?, ?)', [server_id, user_id, is_muted, last_activity, joined_at]);
+            if(result.affectedRows === 0) {
+                return null;
+            }
+            return result.affectedRows;
+        } catch (error) {
+            console.error("insert_server_user Error:", error);
+            return null;
+        }
+    }
 
     async get_server_byID (server_id) {
         try {
@@ -26,6 +44,7 @@ class server_repository {
                 serverData.SERVER_ID,
                 serverData.OWNER_ID,
                 serverData.SERVER_NAME,
+                serverData.ICON_URL,
                 serverData.UNTIL_REPLY,
                 serverData.START_AT,
                 serverData.END_AT,
@@ -47,7 +66,7 @@ class server_repository {
         const servers = [];
         for (const server of server_id) {
             const [server_info] = await pool.query(
-                'SELECT server_id, server_name FROM server WHERE server_id = ?',
+                'SELECT server_id, server_name, icon_url FROM server WHERE server_id = ?',
                 [server.server_id]
             );
 
@@ -67,10 +86,11 @@ class server_repository {
         return channels;
     }
 
-    async update_server_info (server_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) {
+    async update_server_info (server_id, server_name, icon_url, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) {
         const query = `
             UPDATE server 
             SET server_name = ?, 
+            icon_url = ?,
             until_reply = ?, 
             start_at = ?, 
             end_at = ?, 
@@ -79,7 +99,7 @@ class server_repository {
             end_core_time = ?
             WHERE server_id = ?
         `;
-        const[ updateData ] = await pool.query(query, [server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time, server_id]);
+        const[ updateData ] = await pool.query(query, [server_name, icon_url, until_reply, start_at, end_at, weeks, start_core_time, end_core_time, server_id]);
 
         return updateData.affectedRows; // 更新された行数を返す
     }
