@@ -9,18 +9,24 @@ class message_service {
                 message: 'ボディが不足しています'
             }
         }
-        
-        const response = await message_repository.send_message(user_id, channel_id, content);
-        if(!response) {
+        try {
+            const response = await message_repository.send_message(user_id, channel_id, content);
+            if(!response) {
+                return {
+                    status: 500,
+                    message: 'メッセージの送信に失敗しました'
+                }
+            }
+            return {
+                status: 200,
+                message: 'メッセージを送信しました',
+                data: response
+            }
+        } catch (error) {
             return {
                 status: 500,
-                message: 'メッセージの送信に失敗しました'
+                message: `エラーが発生しました error: ${error}`
             }
-        }
-        return {
-            status: 200,
-            message: 'メッセージを送信しました',
-            data: response
         }
     }
 
@@ -46,16 +52,23 @@ class message_service {
                 message: 'メッセージを編集する権限がありません'
             }
         }
-        const [result] = await message_repository.edit_message(message_id, content);
-        if(result.affectedRows === 0) {
+        try {
+            const [result] = await message_repository.edit_message(message_id, content);
+            if(result.affectedRows === 0) {
+                return {
+                    status: 500,
+                    message: 'メッセージの編集に失敗しました'
+                }
+            }
+            return {
+                status: 200,
+                message: 'メッセージを編集しました'
+            }
+        } catch (error) {
             return {
                 status: 500,
-                message: 'メッセージの編集に失敗しました'
+                message: `エラーが発生しました error: ${error}`
             }
-        }
-        return {
-            status: 200,
-            message: 'メッセージを編集しました'
         }
     }
 

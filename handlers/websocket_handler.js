@@ -79,7 +79,7 @@ const handle_status_update = (ws, data, clients, user_info) => {
         const user_channels = server_handler.get_user_channel(ws.user_id);
         if (user_channels) {
             user_channels.forEach(channel_id => {
-                malticast_to_channel(channel_id, {
+                multicast_to_channel(channel_id, {
                     type: 'user_status',
                     user_id: ws.user_id,
                     status: info.status,
@@ -154,7 +154,7 @@ function notify_edit_message(message) {
             channel_id: message.channel_id,
             sender_id: message.sender_id,
             content: message.content,
-            edited_at: new Date().toISOString()
+            edited_at: message.edited_at
         }
     }, clients);
     
