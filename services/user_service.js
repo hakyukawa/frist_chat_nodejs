@@ -3,6 +3,7 @@ const auth = require('../middleware/auth');
 const userRepository = require('../repositories/user_repository');
 const utils = require('../utils/utils');
 const user_repository = require('../repositories/user_repository');
+const server_repository = require('../repositories/server_repository');
 
 const login = async (id, password) => {
     const user = await userRepository.get_user_byID(id);
@@ -62,9 +63,24 @@ const get_profile = async (user_id) => {
     }
 }
 const createChannel = async (channel_id, server_id, channel_name) => {
-    //  チャンネル追加情報の代入
+    //  チャンネル作成情報の代入
     const channel = await userRepository.add_channel(channel_id, server_id, channel_name, utils.getCurrentDateTime());
-
+    // サーバー所属メンバー取得
+    const members = await server_repository.get_server_members(server_id);
+    // サーバーメンバーをリードステータスに追加
+    const insert_read  = await Promise.all(
+        members.map((member) => 
+            user_repository.insert_readstatus(
+                member.user_id, channel_id, null, null, 0, utils.getCurrentDateTime(), utils.getCurrentDateTime()
+            )
+        )
+    );
+    if (insert_read === null) {
+        return {
+            status: 500,
+            message: 'リードステータスにメンバーを追加出来ませんでした'
+        }
+    }
     return {
         status: 200,
         message: 'チャンネルが正常に追加されました',
