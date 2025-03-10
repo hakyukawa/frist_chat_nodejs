@@ -50,6 +50,15 @@ const get_non_server_members = async (req, res) => {
     res.status(result.status).json(result);
 }
 
+const get_server_unread_count = async (req, res) => {
+    const user_id = req.user_id;
+    const server_id = req.params.server_id;
+
+    const result = await server_service.get_server_unread_count(server_id, user_id);
+
+    res.status(result.status).json(result);
+}
+
 module.exports = {
     create_server,
     get_server,
@@ -58,4 +67,5 @@ module.exports = {
     get_channel_list,
     get_server_members,
     get_non_server_members,
+    get_server_unread_count
 }

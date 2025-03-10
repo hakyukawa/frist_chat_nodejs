@@ -232,6 +232,87 @@ const get_non_server_members = async (user_id, server_id) => {
     }
 }
 
+const get_server_unread_count = async (server_id, user_id) => {
+    try {
+        //チャンネルIDの取得
+        const channel_list = await server_repository.get_channel_list(server_id);
+        if (!channel_list) {
+            return { status: 404, message: 'チャンネルは存在しません' }
+        }
+
+        const server = await server_repository.get_server_byID(server_id);
+        if (!server) {
+            return { status: 404, message: 'このサーバーは存在しません' }
+        }
+
+        // Time型のuntil_reply（'00:30:00'形式）を分に変換
+        const until_reply_time = server.until_reply;
+        const [hours, minutes, seconds] = until_reply_time.split(':').map(Number);
+        const until_reply_minutes = hours * 60 + minutes;
+        //チャンネルの未読数を取得
+        let total_unread_count = 0;
+        let most_recent_message_time = null;
+
+        // 各チャンネルを処理
+        for (const channel of channel_list) {
+            // このチャンネルの最後のメッセージ情報を取得
+            const last_message = await server_repository.get_last_message(channel.channel_id, user_id);
+            
+            if (last_message && last_message.last_updated_at) {
+                // このメッセージが全チャンネルで最新の場合、最新メッセージ時間を更新
+                if (!most_recent_message_time || new Date(last_message.last_updated_at) > new Date(most_recent_message_time)) {
+                    most_recent_message_time = last_message.last_updated_at;
+                }
+                
+                // このチャンネルの未読数を取得して加算
+                const unread_result = await server_repository.get_channel_unread_count(channel.channel_id, user_id);
+                if (unread_result && unread_result.length > 0) {
+                    total_unread_count += unread_result[0].unread_count;
+                }
+            }
+        }
+        
+        // 返信期限までの残り時間を計算
+        let minutes_remaining = null;
+        let time_passed = null;
+        let is_expired = false;
+        
+        if (most_recent_message_time) {
+            const now = new Date();
+            const message_time = new Date(most_recent_message_time);
+            const elapsed_minutes = Math.floor((now - message_time) / (1000 * 60));
+            
+            time_passed = elapsed_minutes;
+            minutes_remaining = until_reply_minutes - elapsed_minutes;
+            
+            // 期限切れかどうかを確認
+            if (minutes_remaining <= 0) {
+                minutes_remaining = 0;
+                is_expired = true;
+            }
+        }
+        
+        return {
+            status: 200,
+            message: 'チャンネルの未読数を取得しました',
+            unread_count: total_unread_count,
+            most_recent_message_time: most_recent_message_time,
+            until_reply: until_reply_time,
+            until_reply_minutes: until_reply_minutes,
+            time_passed: time_passed,
+            minutes_remaining: minutes_remaining,
+            is_expired: is_expired
+        };
+
+    } catch (err) {
+        return {
+            status: 500,
+            message: 'チャンネルの未読数の取得に失敗しました',
+            message: `error: ${err}`,
+        }
+    }
+}
+
 module.exports = {
     create_server,
     get_server,
@@ -240,4 +321,5 @@ module.exports = {
     get_channel_list,
     get_server_members,
     get_non_server_members,
+    get_server_unread_count
 }

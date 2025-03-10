@@ -131,6 +131,34 @@ class server_repository {
         const [result] = await pool.query(query, [user_id, channel_id, last_channel_message_id, last_channel_message_id]);
         return result.affectedRows > 0;
     }
+
+    async get_last_message(channel_id, user_id) {
+        const [result] = await pool.query('SELECT last_message_id, last_updated_at FROM read_status WHERE channel_id = ? AND user_id = ?', [channel_id, user_id]);
+        if(result.length === 0) {
+            return null;
+        }
+        return result[0];
+
+    }
+
+    async get_channel_unread_count(channel_id, user_id) {
+        try {
+            const [result] = await pool.query(`
+                SELECT unread_count 
+                FROM read_status 
+                WHERE channel_id = ? AND user_id = ?
+            `, [channel_id, user_id]);
+            
+            if (result.length === 0) {
+                return [{ unread_count: 0 }]; // ユーザーがチャンネルをまだ読んでいない場合
+            }
+            
+            return result;
+        } catch (error) {
+            console.error("get_channel_unread_count Error:", error);
+            return [{ unread_count: 0 }];
+        }
+    }
 }
 
 module.exports = new server_repository();
