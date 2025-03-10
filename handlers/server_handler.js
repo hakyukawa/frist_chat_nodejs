@@ -59,6 +59,13 @@ const get_server_unread_count = async (req, res) => {
     res.status(result.status).json(result);
 }
 
+const delete_channel = async (req, res) => {
+    const channel_id = req.params.channel_id;
+    const result = await server_service.delete_channel(channel_id);
+
+    res.status(result.status).json(result);
+}
+
 module.exports = {
     create_server,
     get_server,
@@ -67,5 +74,6 @@ module.exports = {
     get_channel_list,
     get_server_members,
     get_non_server_members,
-    get_server_unread_count
+    get_server_unread_count,
+    delete_channel
 }

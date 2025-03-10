@@ -58,6 +58,8 @@ const channel = express.Router();
 channel.get('/:server_id', server_handler.get_channel_list)   // http://localhost:3001/api/v1/server/channel/
 // チャンネル作成
 channel.post('/', user_handler.createChannel);     // http://localhost:3001/api/v1/channel/
+// チャンネル削除
+channel.delete('/:channel_id', server_handler.delete_channel);    // http://localhost:3001/api/v1/channel/:channel_id
 // メッセージ送信
 channel.post('/message', message_handler.send_message);    // http://localhost:3001/api/v1/channel/message
 // メッセージ編集

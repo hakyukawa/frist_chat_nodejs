@@ -159,6 +159,17 @@ class server_repository {
             return [{ unread_count: 0 }];
         }
     }
+
+    async delete_channel(channel_id) {
+        try {
+            await pool.query('DELETE FROM read_status WHERE channel_id = ?', [channel_id]);
+            await pool.query('DELETE FROM message WHERE channel_id = ?', [channel_id]);
+            const [result] = await pool.query('DELETE FROM channel WHERE channel_id = ?', [channel_id]);
+        return result;
+        } catch (error) {
+            return error;
+        }
+    }
 }
 
 module.exports = new server_repository();
