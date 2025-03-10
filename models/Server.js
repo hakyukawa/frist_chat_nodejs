@@ -1,9 +1,10 @@
 // サーバー
 class Server {
-    constructor(server_id, owner_id, server_name, until_reply, start_at, end_at, weeks, start_core_time, end_core_time, created_at) {
+    constructor(server_id, owner_id, server_name, icon_url, until_reply, start_at, end_at, weeks, start_core_time, end_core_time, created_at) {
         this.server_id = server_id;
         this.owner_id = owner_id;
         this.server_name = server_name;
+        this.icon_url = icon_url;
         this.until_reply = until_reply;
         this.start_at = start_at;
         this.end_at = end_at;
