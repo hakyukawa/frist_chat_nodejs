@@ -49,6 +49,8 @@ server.get('/', server_handler.get_server_list);    // http://localhost:3001/api
 server.get('/members/:server_id', server_handler.get_server_members);
 // サーバーメンバーではないフレンド一覧
 server.get('/notmember/:server_id', server_handler.get_non_server_members);
+//サーバー内の合計の未読件数、最終メッセージの時間、期限までの時間を返す
+server.get('/count/:server_id', server_handler.get_server_unread_count);    // http://localhost:3001/api/v1/server/count/:server_id
 
 // チャンネル関連のエンドポイント
 const channel = express.Router();
@@ -63,7 +65,7 @@ channel.put('/message/:message_id', message_handler.edit_message);     // http:/
 // メッセージ取得
 channel.get('/message/:channel_id', message_handler.get_message);    // http://localhost:3001/api/v1/channel/message/:channel_id
 // 未読件数を更新
-channel.put('/count/:channel_id', message_handler.update_unread_count);     // http://localhost:3001/api/v1/channel/count
+channel.put('/count/:channel_id', message_handler.update_unread_count);     // http://localhost:3001/api/v1/channel/count/:channel_id
 
 //　エンドポイントをマウント
 server.use('/channel', channel);
