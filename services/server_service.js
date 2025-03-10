@@ -175,7 +175,7 @@ const get_server_members = async (server_id) => {
     }
 }
 
-const get_Non_server_members = async (user_id, server_id) => {
+const get_non_server_members = async (user_id, server_id) => {
     try {
         // サーバー情報取得
         const server = await server_repository.get_server_byID(server_id);
@@ -228,5 +228,5 @@ module.exports = {
     get_server_list,
     get_channel_list,
     get_server_members,
-    get_Non_server_members,
+    get_non_server_members,
 }

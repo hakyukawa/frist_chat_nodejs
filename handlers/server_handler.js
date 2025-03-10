@@ -41,11 +41,11 @@ const get_server_members = async (req, res) => {
     res.status(result.status).json(result);
 }
 
-const get_Non_server_members = async (req, res) => {
+const get_non_server_members = async (req, res) => {
     const user_id = req.user_id;
     const server_id = req.params.server_id;
 
-    const result = await server_service.get_Non_server_members(user_id, server_id);
+    const result = await server_service.get_non_server_members(user_id, server_id);
 
     res.status(result.status).json(result);
 }
@@ -57,5 +57,5 @@ module.exports = {
     get_server_list,
     get_channel_list,
     get_server_members,
-    get_Non_server_members,
+    get_non_server_members,
 }
