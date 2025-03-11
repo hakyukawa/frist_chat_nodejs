@@ -6,7 +6,6 @@ const server_handler = require('./server_handler');
 async function handle_message(ws, message, clients) {
     try {
         const data = JSON.parse(message);
-        
         switch (data.type) {
             case 'chat_message':
                 await handle_chat_message(ws, data, clients, global.user_info);
@@ -39,8 +38,7 @@ async function handle_chat_message(ws, data, clients, user_info) {
     try {
         const user = user_info.get(ws.user_id);
         if(!user) return;
-
-        const message_id = await message_service.send_message(data.channel_id, ws.user_id, data.message);
+        const message_id = await message_service.send_message(ws.user_id,data.channel_id,data.message);
 
         await multicast_to_channel(data.channel_id, {
             type: 'chat_message',
