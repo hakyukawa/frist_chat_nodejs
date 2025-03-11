@@ -38,7 +38,7 @@ async function handle_chat_message(ws, data, clients, user_info) {
     try {
         const user = user_info.get(ws.user_id);
         if(!user) return;
-        const message_id = await message_service.send_message(ws.user_id,data.channel_id,data.message);
+        const message_id = await message_service.send_message(ws.user_id, data.channel_id, data.message);
 
         await multicast_to_channel(data.channel_id, {
             type: 'chat_message',
