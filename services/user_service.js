@@ -58,6 +58,7 @@ const get_profile = async (user_id) => {
         user_id: user_profile.user_id,
         user_name: user_profile.user_name,
         icon_url: user_profile.icon_url,
+        item_id: user_profile.item_id,
         user_rank: user_profile.user_rank,
         user_point: user_profile.point,
     }

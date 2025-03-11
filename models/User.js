@@ -6,6 +6,7 @@ class User {
         this.mail = mail;
         this.password = password;
         this.icon_url = icon_url;
+        this.item_id = item_id;
         this.user_rank = user_rank;
         this.point = point;
         this.created_at = created_at;

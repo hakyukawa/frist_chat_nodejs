@@ -21,7 +21,6 @@ const login = async (req, res, next) => {
                 message: 'ログイン情報が更新されました',
                 user_id: user_id
             }));
-            console.log(log);
         }
     }
 
@@ -76,6 +75,7 @@ const get_profile = async (req, res) => {
         user_id: result.user_id || null,
         user_name: result.user_name || null,
         icon_url: result.icon_url || null,
+        item_id: result.item_id || null,
         user_rank: result.user_rank || 0,
         user_point: result.user_point || 0,
         error: result.error || null,

@@ -22,6 +22,7 @@ class user_repository {
                 userData.MAIL,
                 userData.PASSWORD,
                 userData.ICON_URL,
+                userData.ITEM_ID,
                 userData.USER_RANK,
                 userData.POINT,
                 userData.CREATED_AT
@@ -54,7 +55,7 @@ class user_repository {
     // プロフィール取得
     async get_user_profile(user_id) {
         try {
-            const [ rows ] = await pool.query('SELECT user_id, user_name, icon_url, user_rank, point FROM user WHERE user_id = ?', [user_id]);
+            const [ rows ] = await pool.query('SELECT user_id, user_name, icon_url, item_id, user_rank, point FROM user WHERE user_id = ?', [user_id]);
 
             if (rows.length === 0) {
                 return null; // ユーザーが見つからない場合
@@ -67,6 +68,7 @@ class user_repository {
                 userProfile.mail,
                 userProfile.password,
                 userProfile.icon_url,
+                userProfile.item_id,
                 userProfile.user_rank,
                 userProfile.point,
                 userProfile.created_at
@@ -137,7 +139,7 @@ class user_repository {
 
     async get_user_info (user_id) {
         try {
-            const [ rows ] = await  pool.query('SELECT user_id, user_name, icon_url FROM user WHERE user_id = ?', [user_id]);
+            const [ rows ] = await  pool.query('SELECT user_id, user_name, icon_url, item_id FROM user WHERE user_id = ?', [user_id]);
 
             if (!rows.length === 0) {
                 return null; // ユーザー情報見つからない
@@ -147,6 +149,7 @@ class user_repository {
                 userData.user_id,
                 userData.user_name,
                 userData.icon_url,
+                userData.item_id
             );
         } catch (error) {
             return error;
