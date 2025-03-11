@@ -256,8 +256,8 @@ async function checkTableExists(connection, tableName) {
 async function createTables(connection) {
   // テーブルの作成順序
   const tableOrder = [
-    'user', 'item_type', 'friendship', 'friend_request', 'server', 
-    'channel', 'server_user', 'message', 'read_status', 'item', 
+    'item_type', 'item', 'user', 'friendship', 'friend_request',
+    'server', 'channel', 'server_user', 'message', 'read_status',  
     'user_item', 'transaction_history', 'trophy', 'user_trophy'
   ];
   
