@@ -56,7 +56,8 @@ function setup_web_socket(server) {
             user_info.set(user_id, {
                 user_id: user_id,
                 user_name: user.user_name,
-                user_image: user.user_image
+                user_image: user.icon_url,
+                item_url: user.item_url
             });
             const user_servers = await server_repository.get_server_list(user_id);
             let user_channels = [];
