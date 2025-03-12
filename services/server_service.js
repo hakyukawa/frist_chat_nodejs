@@ -342,6 +342,28 @@ const add_non_server_member = async (server_id, user_id) => {
         }
     }
 }
+  
+const delete_channel = async (channel_id) => {
+    try {
+        const result = await server_repository.delete_channel(channel_id);
+        if(result.length === 0) {
+            return {
+                status: 404,
+                message: 'チャンネルは存在しません',
+            }
+        }
+        return {
+            status: 200,
+            message: 'チャンネルを削除しました',
+        };
+    } catch (err) {
+        return {
+            status: 500,
+            message: 'チャンネルの削除に失敗しました',
+            message: `error: ${err}`,
+        }    
+    }
+}
 
 module.exports = {
     create_server,
@@ -353,4 +375,5 @@ module.exports = {
     get_non_server_members,
     get_server_unread_count,
     add_non_server_member,
+    delete_channel
 }

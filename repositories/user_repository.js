@@ -14,6 +14,8 @@ class user_repository {
                 return null; // ユーザーが見つからない場合
             }
 
+            const item_url = await this.get_item_url(rows[0].ITEM_ID);
+
             // データベースの行を User モデルのインスタンスに変換
             const userData = rows[0];
             return new User(
@@ -22,6 +24,7 @@ class user_repository {
                 userData.MAIL,
                 userData.PASSWORD,
                 userData.ICON_URL,
+                item_url,
                 userData.USER_RANK,
                 userData.POINT,
                 userData.CREATED_AT
@@ -54,11 +57,13 @@ class user_repository {
     // プロフィール取得
     async get_user_profile(user_id) {
         try {
-            const [ rows ] = await pool.query('SELECT user_id, user_name, icon_url, user_rank, point FROM user WHERE user_id = ?', [user_id]);
+            const [ rows ] = await pool.query('SELECT user_id, user_name, icon_url, item_id, user_rank, point FROM user WHERE user_id = ?', [user_id]);
 
             if (rows.length === 0) {
                 return null; // ユーザーが見つからない場合
             }
+
+            const item_url = await this.get_item_url(rows[0].item_id);
             // データベースの行を User モデルのインスタンスに変換
             const userProfile = rows[0];
             return new User (
@@ -67,6 +72,7 @@ class user_repository {
                 userProfile.mail,
                 userProfile.password,
                 userProfile.icon_url,
+                item_url,
                 userProfile.user_rank,
                 userProfile.point,
                 userProfile.created_at
@@ -137,19 +143,33 @@ class user_repository {
 
     async get_user_info (user_id) {
         try {
-            const [ rows ] = await  pool.query('SELECT user_id, user_name, icon_url FROM user WHERE user_id = ?', [user_id]);
+            const [ rows ] = await  pool.query('SELECT user_id, user_name, icon_url, item_id FROM user WHERE user_id = ?', [user_id]);
 
             if (!rows.length === 0) {
                 return null; // ユーザー情報見つからない
             }
             const userData = rows[0];
+            const item_url = await this.get_item_url(userData.item_id);
             return new get_user_twoinfo (
                 userData.user_id,
                 userData.user_name,
                 userData.icon_url,
+                item_url
             );
         } catch (error) {
             return error;
+        }
+    }
+
+    async get_item_url(item_id) {
+        try {
+            const [ rows ] = await pool.query('SELECT image_url FROM item WHERE item_id = ?', [item_id]);
+            if (rows.length === 0) {
+                return null; // アイテムが見つからない場合
+            }
+            return rows[0].image_url;
+        } catch (error) {
+            throw error;
         }
     }
 }

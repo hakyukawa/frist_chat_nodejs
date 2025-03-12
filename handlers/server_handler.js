@@ -63,7 +63,12 @@ const add_non_server_member = async (req, res) => {
     const { server_id, user_id } = req.body;
 
     const result = await server_service.add_non_server_member(server_id, user_id);
+    res.status(result.status).json(result);
+}
 
+const delete_channel = async (req, res) => {
+    const channel_id = req.params.channel_id;
+    const result = await server_service.delete_channel(channel_id);
     res.status(result.status).json(result);
 }
 
@@ -76,5 +81,6 @@ module.exports = {
     get_server_members,
     get_non_server_members,
     get_server_unread_count,
-    add_non_server_member
+    add_non_server_member,
+    delete_channel
 }

@@ -20,9 +20,11 @@ const tableDefinitions = {
       MAIL VARCHAR(30) NOT NULL UNIQUE,
       PASSWORD CHAR(64) NOT NULL,
       ICON_URL VARCHAR(255),
+      ITEM_ID CHAR(36),
       USER_RANK INT DEFAULT 0 NOT NULL,
       POINT INT DEFAULT 0 NOT NULL CHECK (POINT >= 0),
-      CREATED_AT DATETIME NOT NULL
+      CREATED_AT DATETIME NOT NULL,
+      FOREIGN KEY (ITEM_ID) REFERENCES item(ITEM_ID)
     )
   `,
   'friendship': `
@@ -190,6 +192,13 @@ const testData = {
       PASSWORD: utils.hashPassword('password2'),
       CREATED_AT: utils.getCurrentDateTime()
     }
+    {
+      USER_ID: 'unknown',
+      USER_NAME: 'unknown',
+      MAIL: 'unknown@example.com',
+      PASSWORD: utils.hashPassword('kirimaruorg'),
+      CREATED_AT: utils.getCurrentDateTime()
+    }
   ],
   'item_type': [
     {
@@ -254,8 +263,8 @@ async function checkTableExists(connection, tableName) {
 async function createTables(connection) {
   // テーブルの作成順序
   const tableOrder = [
-    'user', 'item_type', 'friendship', 'friend_request', 'server', 
-    'channel', 'server_user', 'message', 'read_status', 'item', 
+    'item_type', 'item', 'user', 'friendship', 'friend_request',
+    'server', 'channel', 'server_user', 'message', 'read_status',  
     'user_item', 'transaction_history', 'trophy', 'user_trophy'
   ];
   
