@@ -26,6 +26,7 @@ class user_repository {
                 userData.ICON_URL,
                 item_url,
                 userData.USER_RANK,
+                userData.EXP,
                 userData.POINT,
                 userData.CREATED_AT
             );
@@ -48,7 +49,7 @@ class user_repository {
     // サインアップ関数
     async resister(id, username, mail, hashedPassword, rank, point, created_time) {
         try {
-            const [rows] = await pool.query('INSERT INTO user (user_id, user_name, mail, password, user_rank, point, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [id, username, mail, hashedPassword, rank, point, created_time]);
+            const [rows] = await pool.query('INSERT INTO user (user_id, user_name, mail, password, user_rank, exp, point, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [id, username, mail, hashedPassword, rank, exp, point, created_time]);
             return rows.insertId;
         } catch (error) {
             throw error;
@@ -57,7 +58,7 @@ class user_repository {
     // プロフィール取得
     async get_user_profile(user_id) {
         try {
-            const [ rows ] = await pool.query('SELECT user_id, user_name, icon_url, item_id, user_rank, point FROM user WHERE user_id = ?', [user_id]);
+            const [ rows ] = await pool.query('SELECT user_id, user_name, icon_url, item_id, user_rank, exp, point FROM user WHERE user_id = ?', [user_id]);
 
             if (rows.length === 0) {
                 return null; // ユーザーが見つからない場合
@@ -169,6 +170,53 @@ class user_repository {
             }
             return rows[0].image_url;
         } catch (error) {
+            throw error;
+        }
+    }
+
+    async save_points(user_id, points) {
+        try {
+            // ポイントとEXPを同時に加算（両方に同じ値を加算）
+            const query = 'UPDATE user SET POINT = POINT + ?, EXP = EXP + ? WHERE USER_ID = ?';
+            const result = await pool.query(query, [points, points, user_id]);
+            
+            if (result.affectedRows === 0) {
+                throw new Error('ユーザーが見つかりません');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('ポイント更新エラー:', error);
+            throw error;
+        }
+    }
+
+    //ポイント加算履歴を追加
+    async save_point_award(award_id, user_id, channel_id, points, awarded_at) {
+        try {
+            console.log("セーブします");
+            const query = 'INSERT INTO point_award (AWARD_ID, USER_ID, CHANNEL_ID, POINT, AWARDED_AT) VALUES (?, ?, ?, ?, ?)';
+            const [result] = await pool.query(query, [award_id, user_id, channel_id, points, awarded_at]);
+            return true;
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async get_last_point_award(user_id, channel_id) {
+        try {
+            const query = `
+                SELECT *
+                FROM point_award
+                WHERE USER_ID = ? AND CHANNEL_ID = ?
+                ORDER BY AWARDED_AT DESC
+                LIMIT 1
+            `;
+    
+            const [rows] = await pool.query(query, [user_id, channel_id]);
+            return rows;
+        } catch (error) {
+            console.error("Error in get_last_point_award:", error);
             throw error;
         }
     }

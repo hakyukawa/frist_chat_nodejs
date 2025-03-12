@@ -11,6 +11,8 @@ class message_repository{
         if(result.affectedRows === 0) {
             return null;
         }
+
+        const [read_status_result] = await pool.query('UPDATE read_status set last_message_id = ? where user_id = ? AND channel_id = ?', [message_id, user_id, channel_id]);
         return message_id;
     }
 
@@ -145,6 +147,36 @@ class message_repository{
     async update_unread_count(channel_id, last_message_id) {
         const [result] = await pool.query('UPDATE read_status SET unread_count = unread_count + 1, last_message_id = ? WHERE channel_id = ?', [last_message_id, channel_id]);
         return result;
+    }
+
+    async get_read_status(channel_id, user_id) {
+        try {
+            const query = 'SELECT * FROM read_status WHERE CHANNEL_ID = ? AND USER_ID = ?';
+            const [read_status] = await pool.query(query, [channel_id, user_id]);
+            return read_status[0];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async get_message_by_id(message_id) {
+        try {
+            const query = 'SELECT * FROM message WHERE MESSAGE_ID = ?';
+            const [message] = await pool.query(query, [message_id]);
+            return message;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async get_latest_message_by_channel(channel_id) {
+        try {
+            const query = 'SELECT * FROM message WHERE CHANNEL_ID = ? ORDER BY CREATED_AT DESC LIMIT 1';
+            const [last_message] = await pool.query(query, [channel_id]);
+            return last_message;
+        } catch (error) {
+            throw error;
+        }
     }
 }
 

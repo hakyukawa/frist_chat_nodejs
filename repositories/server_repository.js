@@ -170,6 +170,20 @@ class server_repository {
             return error;
         }
     }
+
+    async get_server_by_channel(channel_id) {
+        try{
+            const [rows] = await pool.query('SELECT server_id FROM channel WHERE channel_id = ?', [channel_id]);
+            if(rows.length === 0){
+                throw new Error("チャンネルが見つかりません");
+            }
+            const server_id = rows[0].server_id;
+            const server = await this.get_server_byID(server_id);
+            return server;
+        } catch (error) {
+            return error
+        }
+    }
 }
 
 module.exports = new server_repository();

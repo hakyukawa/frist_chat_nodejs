@@ -35,7 +35,7 @@ const signup = async (id, username, mail, password) => {
     // パスワードのハッシュ化
     const hashedPassword = utils.hashPassword(password);
     if (hashedPassword)  {
-        await userRepository.resister(id, username, mail, hashedPassword, 0, 0, utils.getCurrentDateTime());
+        await userRepository.resister(id, username, mail, hashedPassword, 0, 0, 0, utils.getCurrentDateTime());
     }
     return {
         status: 200,
@@ -60,6 +60,7 @@ const get_profile = async (user_id) => {
         icon_url: user_profile.icon_url,
         item_id: user_profile.item_id,
         user_rank: user_profile.user_rank,
+        user_exp: user_profile.exp,
         user_point: user_profile.point,
     }
 }
