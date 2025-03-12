@@ -191,7 +191,7 @@ const testData = {
       MAIL: 'test2@example.com',
       PASSWORD: utils.hashPassword('password2'),
       CREATED_AT: utils.getCurrentDateTime()
-    }
+    },
     {
       USER_ID: 'unknown',
       USER_NAME: 'unknown',
