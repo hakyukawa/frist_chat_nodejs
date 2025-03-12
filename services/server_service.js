@@ -21,17 +21,17 @@ const create_server = async (owner_id, server_name, icon_url, until_reply, start
             utils.formatTimeForMySQL(start_core_time),
             utils.formatTimeForMySQL(end_core_time)
         );
+        if(!server) {
+            return {
+                status: 500,
+                message: 'データベースに登録出来ませんでした'
+            }
+        }
         const server_user = await server_repository.insert_server_user(server_id, owner_id, false, utils.getCurrentDateTime(), utils.getCurrentDateTime());
         if (server_user === null) {
             return {
                 status: 500,
                 message: 'サーバーユーザーの登録に失敗しました'
-            }
-        }
-        if(!server) {
-            return {
-                status: 500,
-                message: 'データベースに登録出来ませんでした'
             }
         }
         return {
@@ -203,15 +203,24 @@ const get_non_server_members = async (user_id, server_id) => {
         if (!server_members) {
             return { status: 404, message: 'このサーバーにユーザーはいません' }
         }
+        console.log(user_friends);
 
         let user_friendIDs = [];
+
         user_friends.forEach((friend) => {
-            server_members.forEach((member) => {
-                if (friend.user_id_1 !== member.user_id && friend.user_id_1 !== server.owner_id) {
-                    user_friendIDs.push({user_id: friend.user_id_1});
-                }
-            });
+            // user_id_1 と user_id_2 の両方が server_members にいないか確認
+            const isUser1Member = server_members.some(member => member.user_id === friend.user_id_1);
+            const isUser2Member = server_members.some(member => member.user_id === friend.user_id_2);
+
+            // `server_members` に存在しないユーザーだけを追加
+            if (!isUser1Member && !user_friendIDs.some(u => u.user_id === friend.user_id_1)) {
+                user_friendIDs.push({ user_id: friend.user_id_1 });
+            }
+            if (!isUser2Member && !user_friendIDs.some(u => u.user_id === friend.user_id_2)) {
+                user_friendIDs.push({ user_id: friend.user_id_2 });
+            }
         });
+
 
         const user_info = await Promise.all(
             user_friendIDs.map((friendID) => user_repository.get_user_info(friendID.user_id))
@@ -313,6 +322,27 @@ const get_server_unread_count = async (server_id, user_id) => {
     }
 }
 
+const add_non_server_member = async (server_id, user_id) => {
+    try {
+        const server_user = await server_repository.insert_server_user(server_id, user_id, false, utils.getCurrentDateTime(), utils.getCurrentDateTime());
+        if (server_user === null) {
+            return {
+                status: 500,
+                message: 'サーバーユーザーの登録に失敗しました'
+            }
+        }
+        return {
+            status: 200, 
+            message: 'フレンドをサーバーに追加しました',
+        }
+    } catch (err) {
+        return {
+            status: 500,
+            message: `サーバーにメンバー追加中にエラーが発生しました：${err}`,
+        }
+    }
+}
+  
 const delete_channel = async (channel_id) => {
     try {
         const result = await server_repository.delete_channel(channel_id);
@@ -344,5 +374,6 @@ module.exports = {
     get_server_members,
     get_non_server_members,
     get_server_unread_count,
+    add_non_server_member,
     delete_channel
 }

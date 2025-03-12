@@ -39,16 +39,18 @@ user.get('/friendship', friend_handler.friendship);    // http://localhost:3001/
 // サーバー関連のエンドポイント
 const server = express.Router();
 // サーバー設定
-server.get('/:server_id', server_handler.get_server);
-server.put('/:server_id', server_handler.update_server);
+server.get('/:server_id', server_handler.get_server);   // http://localhost:3001/api/v1/auth/server/:server_id 
+server.put('/:server_id', server_handler.update_server);    // http://localhost:3001/api/v1/auth/server/:server_id
 // サーバー作成
-server.post('/', server_handler.create_server);    // http://localhost:3001/api/v1/server/
+server.post('/', server_handler.create_server);    // http://localhost:3001/api/v1/auth/server/
 //サーバー一覧取得
 server.get('/', server_handler.get_server_list);    // http://localhost:3001/api/v1/server/
 // サーバーメンバー一覧
-server.get('/members/:server_id', server_handler.get_server_members);
+server.get('/members/:server_id', server_handler.get_server_members);   // http://localhost:3001/api/v1/auth/server/members/:server_id
 // サーバーメンバーではないフレンド一覧
-server.get('/notmember/:server_id', server_handler.get_non_server_members);
+server.get('/notmember/:server_id', server_handler.get_non_server_members); // http://localhost:3001/api/v1/auth/server/notmember/:server_id
+// メンバーではないフレンドをサーバーに追加
+server.post('/notmember', server_handler.add_non_server_member);
 //サーバー内の合計の未読件数、最終メッセージの時間、期限までの時間を返す
 server.get('/count/:server_id', server_handler.get_server_unread_count);    // http://localhost:3001/api/v1/server/count/:server_id
 

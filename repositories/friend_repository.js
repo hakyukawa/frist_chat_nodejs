@@ -115,6 +115,8 @@ class friend_repository {
           [request_id]
         );
         console.log(2000);
+        console.log(sender_id);
+        console.log(receiver_id);
 
         // そのまま挿入
         const [insertResult] = await pool.query(
