@@ -192,6 +192,13 @@ const testData = {
       PASSWORD: utils.hashPassword('password2'),
       CREATED_AT: utils.getCurrentDateTime()
     }
+    {
+      USER_ID: 'unknown',
+      USER_NAME: 'unknown',
+      MAIL: 'unknown@example.com',
+      PASSWORD: utils.hashPassword('kirimaruorg'),
+      CREATED_AT: utils.getCurrentDateTime()
+    }
   ],
   'item_type': [
     {
