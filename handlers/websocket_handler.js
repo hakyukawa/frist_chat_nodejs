@@ -39,7 +39,6 @@ async function handle_chat_message(ws, data, clients, user_info) {
         const user = user_info.get(ws.user_id);
         if(!user) return;
         const message_id = await message_service.send_message(ws.user_id, data.channel_id, data.message);
-
         await multicast_to_channel(data.channel_id, {
             type: 'chat_message',
             channel_id: data.channel_id,
@@ -196,7 +195,7 @@ const channel_state_manager = {
             const updatePromises = [];
             
             for (const userId of activeUsers) {
-                updatePromises.push(server_repository.update_read_status(channel_id, user_id, message_id));
+                updatePromises.push(server_repository.update_read_status(channel_id, userId, message_id));
             }
             
             await Promise.all(updatePromises);
