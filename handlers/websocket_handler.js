@@ -38,7 +38,9 @@ async function handle_chat_message(ws, data, clients, user_info) {
     try {
         const user = user_info.get(ws.user_id);
         if(!user) return;
-        const message_id = await message_service.send_message(ws.user_id, data.channel_id, data.message);
+        //インサートしたメッセージIDを取得
+        const message_id = await message_service.get_last_message(data.channel_id);
+        console.log('メッセージ送信:', message_id);
         await multicast_to_channel(data.channel_id, {
             type: 'chat_message',
             channel_id: data.channel_id,
@@ -51,8 +53,9 @@ async function handle_chat_message(ws, data, clients, user_info) {
             },
             timestamp: new Date()
         }, clients);
+        console.log('リードステータスを更新する:', message_id);
+        await updateAllActiveUsersReadStatus(data.channel_id, message_id);
 
-        await channel_state_manager.updateAllActiveUsersReadStatus(data.channel_id, message_id);
         // 送信確認をクライアントに送信
         ws.send(JSON.stringify({
             type: 'message_sent',
