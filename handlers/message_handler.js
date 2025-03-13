@@ -5,9 +5,9 @@ const websocket_handler = require('../handlers/websocket_handler');
 const send_message = async (req, res) => {
     try {
         const { channel_id, content } = req.body;
-        const response = await message_service.send_message(req.user_id, channel_id, content);
-
+        
         const point = await message_service.add_point(req.user_id, channel_id);
+        const response = await message_service.send_message(req.user_id, channel_id, content);
         // WebSocket通知
         if (response.status === 200 && response.data) {
             websocket_handler.notify_new_message({
