@@ -195,7 +195,7 @@ class message_service {
             // 日付が違う場合（前日以前のメッセージ）
             if (unread_date.getTime() < today.getTime()) {
                 // 前日のEND_ATの時間を計算
-                const [end_hours, end_minutes] = server.END_AT.split(':').map(Number);
+                const [end_hours, end_minutes] = server.end_at.split(':').map(Number);
                 const yesterday = new Date(today);
                 yesterday.setDate(yesterday.getDate() - 1);
                 yesterday.setHours(end_hours, end_minutes, 0, 0);

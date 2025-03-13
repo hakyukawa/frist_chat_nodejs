@@ -230,6 +230,44 @@ class message_repository {
             throw error;
         }
     }
+
+    // 指定した時間以降の特定ユーザーのメッセージを取得
+    async get_user_messages_after_time(channel_id, user_id, time) {
+        try {
+            const formattedTime = time.toISOString().slice(0, 19).replace('T', ' ');
+            const query = `
+            SELECT * FROM message 
+            WHERE CHANNEL_ID = ? 
+            AND SENDER_ID = ? 
+            AND CREATED_AT > ? 
+            ORDER BY CREATED_AT ASC
+        `;
+            const [results] = await pool.query(query, [channel_id, user_id, formattedTime]);
+            return results;
+        } catch (error) {
+            console.error('get_user_messages_after_time エラー:', error);
+            throw error;
+        }
+    }
+
+    // 指定した時間以降の特定ユーザー以外のメッセージを取得
+    async get_other_user_messages_after_time(channel_id, user_id, time) {
+        try {
+            const formattedTime = time.toISOString().slice(0, 19).replace('T', ' ');
+            const query = `
+            SELECT * FROM message 
+            WHERE CHANNEL_ID = ? 
+            AND SENDER_ID != ? 
+            AND CREATED_AT > ? 
+            ORDER BY CREATED_AT ASC
+        `;
+            const [results] = await pool.query(query, [channel_id, user_id, formattedTime]);
+            return results;
+        } catch (error) {
+            console.error('get_other_user_messages_after_time エラー:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = new message_repository();
