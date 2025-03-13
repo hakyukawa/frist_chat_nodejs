@@ -11,6 +11,8 @@ class message_repository {
         if (result.affectedRows === 0) {
             return null;
         }
+        
+        
         return message_id;
     }
 
@@ -35,7 +37,6 @@ class message_repository {
     //メッセージを取得
     async get_message(channel_id, last_message_id,) {
         try {
-            console.log('last_message_id:', last_message_id);
             const limit = 50;   //取得してくる件数
             let query = `SELECT * FROM message WHERE channel_id = ? `;
             const param = [channel_id];
@@ -50,8 +51,10 @@ class message_repository {
                 return result;
             }
             const messages = [];
+            
             for (const message of result) {
-                console.log("メッセージ" + message.CONTENT)
+              console.log("メッセージ" + message.CONTENT)
+
                 messages.push(new Message(
                     message.message_id || message.MESSAGE_ID,
                     message.channel_id || message.CHANNEL_ID,
@@ -138,6 +141,7 @@ class message_repository {
 
             await pool.query(query, params);
         } catch (error) {
+          console.log("エラー" + error)
             utils.logError(error, 'MessageRepository.updateReadStatus');
             throw error;
         }
@@ -159,7 +163,6 @@ class message_repository {
             LIMIT 1
         `;
             const [rows] = await pool.query(query, [channel_id]);
-            console.log('rows:', rows);
             return rows.length > 0 ? rows[0] : null;
         } catch (error) {
             console.error('最新メッセージの取得エラー:', error);
