@@ -164,12 +164,51 @@ class user_repository {
     async get_item_url(item_id) {
         try {
             const [ rows ] = await pool.query('SELECT image_url FROM item WHERE item_id = ?', [item_id]);
-            if (rows.length === 0) {
+            if (rows.length === 0) { 
                 return null; // アイテムが見つからない場合
             }
             return rows[0].image_url;
         } catch (error) {
             throw error;
+        }
+    }
+
+    async get_all_user() {
+        try {
+            const [ rows ] = await pool.query('SELECT * FROM user');
+
+            if (rows.length === 0) {
+                return [];
+            }
+            return rows.map(row => new User(
+                row.USER_ID,
+                row.USER_NAME,
+                row.MAIL,
+                row.PASSWORD,
+                row.ICON_URL,
+                row.ITEM_URL,
+                row.USER_RANK,
+                row.POINT,
+                row.CREATED_AT
+            ));
+        } catch (error) {
+            console.error("select_server_user Error:", error);
+            return null;
+        }
+    }
+
+    async update_user_mail(user_id, mail) {
+        try {
+            const [ updateMail ] = await pool.query('UPDATE user SET mail = ? WHERE user_id = ?', [ mail, user_id ]);
+
+            if (updateMail.affectedRows === 0) {
+                return null;
+            }
+
+            return updateMail.affectedRows;
+        } catch (error) {
+            console.error("update_server_user Error:", error);
+            return null;
         }
     }
 }
