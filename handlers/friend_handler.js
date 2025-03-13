@@ -26,7 +26,7 @@ const friendship = async (req, res, next) => {
 //フレンドリクエスト
 const send_friendrequest = async (req, res, next) => {
   const user_id = req.user_id;
-  const receiver_id = req.params.receiver_id
+  const receiver_id = req.params.receiver_id;
 
   const result = await friend_service.create_FriendRequest(user_id, receiver_id)
   res.status(result.status).json(result)
