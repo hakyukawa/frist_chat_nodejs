@@ -35,7 +35,6 @@ const login = async (req, res, next) => {
 
 const signup = async (req, res) => {
     const { user_id, user_name, mail, password } = req.body;
-    console.log(user_name);
     const result = await user_service.signup(user_id, user_name, mail, password);
 
     res.status(result.status).json({
@@ -107,6 +106,17 @@ const update_profile = async (req, res) => {
     res.status(result.status).json(result);
 }
 
+const update_user_mail = async (req, res) => {
+    const user_id = req.user_id;
+    const { mail } = req.body;
+    if (!mail) {
+        return res.status(400).json('mailがありません');
+    }
+    const result = await user_service.update_user_mail(user_id, mail);
+
+    res.status(result.status).json(result);
+}
+
 module.exports = {
     login,
     signup,
@@ -114,4 +124,5 @@ module.exports = {
     createChannel,
     get_items,
     update_profile,
+    update_user_mail,
 }

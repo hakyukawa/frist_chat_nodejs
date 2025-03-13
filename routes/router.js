@@ -33,6 +33,7 @@ user.put('/friendrequest/:status', friend_handler.res_friendrequest)
 // ユーザー関連のエンドポイント
 user.get('/profile', user_handler.get_profile);         // http://localhost:3001/api/v1/user/profile
 user.put('/profile', user_handler.update_profile);
+user.put('/mail', user_handler.update_user_mail);     // http://localhost:3001/api/v1/user/email
 user.get('/items', user_handler.get_items);             // http://localhost:3001/api/v1/user/items
 // ユーザー情報取得
 user.get('/friendship', friend_handler.friendship);    // http://localhost:3001/api/v1/user/friendship

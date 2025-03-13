@@ -14,6 +14,7 @@ class message_service {
         }
         try {
             const response = await message_repository.send_message(user_id, channel_id, content);
+
             if(!response) {
                 return {
                     status: 500,
@@ -85,8 +86,8 @@ class message_service {
 
         try {
             //最後に読んだメッセージIDを取得
-            const last_message_id = await message_repository.get_last_read_message_id(channel_id, user_id);
-
+            const last_message_id = await message_repository.get_last_message(channel_id);
+            console.log(last_message_id)
             //メッセージを取得
             const response = await message_repository.get_message(channel_id, last_message_id);
             if(response.length === 0) { //メッセージが存在していないが、取得に失敗していない場合(チャンネル初期状態)
@@ -124,7 +125,7 @@ class message_service {
             }
         }
     }
-
+    // 未読件数を更新
     async update_unread_count(channel_id, last_message_id) {
         try {
             const response = await message_repository.update_unread_count(channel_id, last_message_id);
@@ -147,21 +148,16 @@ class message_service {
         }
         
     }
-
+    // 最新のメッセージIDを取得
     async get_last_message(channel_id) {
         try {
-            const query = `
-                SELECT message_id, created_at
-                FROM messages
-                WHERE channel_id = ?
-                ORDER BY created_at DESC
-                LIMIT 1
-            `;
-            const [rows] = await pool.query(query, [channel_id]);
-            return rows.length > 0 ? rows[0] : null;
+            const last_message_id = await message_repository.get_last_message(channel_id);
+            return last_message_id;
         } catch (error) {
-            console.error('最新メッセージの取得エラー:', error);
-            throw error;
+            return {
+                status: 500,
+                message: `エラーが発生しました error: ${error}`
+            }
         }
     }
 
@@ -362,7 +358,7 @@ class message_service {
             console.error('ポイント付与エラー:', error);
             throw error;
         }
-    }
+    }      
 }
 
 module.exports = new message_service();

@@ -32,6 +32,12 @@ const signup = async (id, username, mail, password) => {
     if (signup_user) {
         return { status: 401, message: '存在するユーザーIDです'};
     }
+    const all_users = await user_repository.get_all_user();
+    // 全ユーザーのメールと比較
+    const isDuplicate = all_users.some(user => user.mail === mail);
+    if (isDuplicate) {
+        return { status: 409, message: 'このメールアドレスはすでに存在します' }
+    }
     // パスワードのハッシュ化
     const hashedPassword = utils.hashPassword(password);
     if (hashedPassword)  {
@@ -121,6 +127,34 @@ const update_profile = async (user_id, user_name, icon_url) => {
     }
 }
 
+const update_user_mail = async (user_id, mail) => {
+    try {
+        
+        const exiting_uer = await user_repository.get_user_byID(user_id);
+        if (!exiting_uer) {
+            return { status: 404, message: "ユーザーが見つかりません" };
+        }
+        const all_users = await user_repository.get_all_user();
+    
+        // 全ユーザーのメールと比較
+        const isDuplicate = all_users.some(user => user.mail === mail);
+        if (isDuplicate) {
+            return { status: 409, message: 'このメールアドレスはすでに存在します' }
+        }
+    
+        // console.log(mail);
+        // メールアドレスを更新
+        const updateMail = await user_repository.update_user_mail(user_id, mail);
+        return { 
+            status: 200,
+            message: 'メールアドレスを更新しました',
+            update_count: updateMail,
+        }
+    } catch (err) {
+        return { status: 500, message: "サーバーエラーが発生しました" };
+    }
+}
+
 module.exports = {
     login,
     signup,
@@ -128,4 +162,5 @@ module.exports = {
     createChannel,
     get_items,
     update_profile,
+    update_user_mail,
 };
