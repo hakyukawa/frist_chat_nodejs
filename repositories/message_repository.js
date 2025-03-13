@@ -31,7 +31,7 @@ class message_repository {
     }
     return message_id;
   };
-
+  
   //メッセージを取得
   async get_message(channel_id, last_message_id,) {
     try {
@@ -165,8 +165,70 @@ class message_repository {
       console.error('最新メッセージの取得エラー:', error);
       throw error;
     }
-  }
 
+    async get_read_status(channel_id, user_id) {
+        try {
+            const query = 'SELECT * FROM read_status WHERE CHANNEL_ID = ? AND USER_ID = ?';
+            const [read_status] = await pool.query(query, [channel_id, user_id]);
+            return read_status[0];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async get_message_by_id(message_id) {
+        try {
+            const query = 'SELECT * FROM message WHERE MESSAGE_ID = ?';
+            const [message] = await pool.query(query, [message_id]);
+            return message;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async get_unread_first_message(channel_id, user_id) {
+        try{
+            const query = `
+            WITH LastUserMessage AS (
+                SELECT MESSAGE_ID, CREATED_AT
+                FROM message
+                WHERE CHANNEL_ID = ? AND SENDER_ID = ?
+                ORDER BY CREATED_AT DESC
+                LIMIT 1
+            )
+            SELECT *
+            FROM message
+            WHERE CHANNEL_ID = ?
+            AND CREATED_AT > (SELECT CREATED_AT FROM LastUserMessage)
+            ORDER BY CREATED_AT ASC
+            LIMIT 1;
+        `;
+            const [result] = await pool.query(query, [channel_id, user_id, channel_id]);
+            return result[0];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async get_latest_message(channel_id) {
+        try {
+            const query = 'SELECT * FROM message WHERE CHANNEL_ID = ? ORDER BY CREATED_AT DESC LIMIT 1';
+            const [result] = await pool.query(query, [channel_id]);
+            return result[0];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async update_last_read_message_id(channel_id, user_id, last_read_message_id) {
+        try {
+            const query = 'UPDATE read_status SET last_read_message_id = ? WHERE channel_id = ? AND user_id = ?';
+            const [result] = await pool.query(query, [last_read_message_id, channel_id, user_id]);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = new message_repository();

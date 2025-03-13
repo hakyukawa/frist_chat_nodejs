@@ -3,22 +3,32 @@ const websocket_handler = require('../handlers/websocket_handler');
 
 //メッセージの送信
 const send_message = async (req, res) => {
-    const { channel_id, content } = req.body;
-    const response = await message_service.send_message(req.user_id, channel_id, content);
+    try {
+        const { channel_id, content } = req.body;
+        
+        const point = await message_service.add_point(req.user_id, channel_id);
+        const response = await message_service.send_message(req.user_id, channel_id, content);
+        // WebSocket通知
+        if (response.status === 200 && response.data) {
+            websocket_handler.notify_new_message({
+                message_id: response.data,
+                channel_id: channel_id,
+                sender_id: req.user_id,
+                content: content,
+                created_at: new Date().toISOString(),
+                edited_at: null
+            });
+        }
 
-    // WebSocket通知
-    if (response.status === 200 && response.data) {
-        websocket_handler.notify_new_message({
-            message_id: response.data,
-            channel_id: channel_id,
-            sender_id: req.user_id,
-            content: content,
-            created_at: new Date().toISOString(),
-            edited_at: null
+        res.status(response.status).json({
+            message: response.message,
+            data: response.data,
+            point: point
         });
+    } catch (error) {
+        console.error("Error in send_message handler:", error);
+        res.status(500).json({ message: "サーバーエラー", error: error.message });
     }
-
-    res.status(response.status).json(response);
 };
 
 //メッセージの編集

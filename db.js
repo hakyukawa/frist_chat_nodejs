@@ -22,6 +22,7 @@ const tableDefinitions = {
       ICON_URL VARCHAR(255),
       ITEM_ID CHAR(36),
       USER_RANK INT DEFAULT 0 NOT NULL,
+      EXP INT DEFAULT 0 NOT NULL,
       POINT INT DEFAULT 0 NOT NULL CHECK (POINT >= 0),
       CREATED_AT DATETIME NOT NULL,
       FOREIGN KEY (ITEM_ID) REFERENCES item(ITEM_ID)
@@ -172,6 +173,18 @@ const tableDefinitions = {
       FOREIGN KEY (USER_ID) REFERENCES user(USER_ID),
       FOREIGN KEY (TROPHY_ID) REFERENCES trophy(TROPHY_ID)
     )
+  `,
+  'point_award': `
+    CREATE TABLE point_award (
+      AWARD_ID CHAR(36) NOT NULL,
+      USER_ID VARCHAR(30) NOT NULL,
+      CHANNEL_ID CHAR(36) NOT NULL,
+      POINT INT NOT NULL,
+      AWARDED_AT DATETIME NOT NULL,
+      PRIMARY KEY (AWARD_ID, USER_ID, CHANNEL_ID),
+      FOREIGN KEY (USER_ID) REFERENCES user(USER_ID),
+      FOREIGN KEY (CHANNEL_ID) REFERENCES channel(CHANNEL_ID)
+    )
   `
 };
 
@@ -265,7 +278,8 @@ async function createTables(connection) {
   const tableOrder = [
     'item_type', 'item', 'user', 'friendship', 'friend_request',
     'server', 'channel', 'server_user', 'message', 'read_status',  
-    'user_item', 'transaction_history', 'trophy', 'user_trophy'
+    'user_item', 'transaction_history', 'trophy', 'user_trophy',
+    'point_award'
   ];
   
   for (const tableName of tableOrder) {
@@ -487,6 +501,22 @@ async function insertTestData(connection, tableName) {
           };
           await connection.query('INSERT INTO user_trophy SET ?', userTrophy);
           utils.logInfo('ユーザートロフィーテストデータを挿入しました');
+        }
+        break;
+      case 'point_award':
+        // ポイント付与履歴を作成
+        const [channelPointData] = await connection.query('SELECT CHANNEL_ID FROM channel ORDER BY CREATED_AT DESC LIMIT 1');
+        const [userPointData] = await connection.query('SELECT USER_ID FROM user LIMIT 1');
+        if (channelPointData.length > 0 && userPointData.length > 0) {
+          const pointAward = {
+            AWARD_ID: utils.generateUUID(),
+            USER_ID: userPointData[0].USER_ID,
+            CHANNEL_ID: channelPointData[0].CHANNEL_ID,
+            POINT: 50,
+            AWARDED_AT: utils.getCurrentDateTime()
+          };
+          await connection.query('INSERT INTO point_award SET ?', pointAward);
+          utils.logInfo('ポイント付与履歴テストデータを挿入しました');
         }
         break;
     }
