@@ -38,7 +38,7 @@ const create_server = async (owner_id, server_name, icon_url, until_reply, start
         return {
             status: 200,
             message: 'サーバー作成完了',
-            server_id: server.server_id
+            server_id: server_id
         }
     } catch (err) {
         return {
