@@ -4,6 +4,7 @@ const utils = require('../utils/utils');
 const user_repository = require('../repositories/user_repository');
 const friend_repository = require('../repositories/friend_repository');
 const { error } = require('console');
+const message_repository = require('../repositories/message_repository');
 
 // サーバー作成
 const create_server = async (owner_id, server_name, icon_url, until_reply, start_at, end_at, weeks, start_core_time, end_core_time) => {
@@ -21,7 +22,7 @@ const create_server = async (owner_id, server_name, icon_url, until_reply, start
             utils.formatTimeForMySQL(start_core_time),
             utils.formatTimeForMySQL(end_core_time)
         );
-        if(!server) {
+        if (!server) {
             return {
                 status: 500,
                 message: 'データベースに登録出来ませんでした'
@@ -52,12 +53,12 @@ const get_server = async (server_id, user_id) => {
         // サーバー情報の有無・サーバー情報取得
         const exiting_server = await server_repository.get_server_byID(server_id);
         if (!exiting_server) {
-            return { 
-                status: 404, 
-                message: 'このサーバーは存在しません' 
+            return {
+                status: 404,
+                message: 'このサーバーは存在しません'
             };
         }
-        
+
         return {
             status: 200,
             message: 'サーバーの情報取得成功',
@@ -140,7 +141,7 @@ const update_server = async (server_id, server_name, icon_url, until_reply, star
         }
     } catch (err) {
         return {
-            status: 500, 
+            status: 500,
             message: `error: ${err}`
         }
     }
@@ -162,14 +163,14 @@ const get_server_members = async (server_id) => {
         let owner_id = null;
         server_members.forEach((member) => {
             if (member.user_id === server.owner_id) {
-                owner_id =  member.user_id;
+                owner_id = member.user_id;
             }
         });
         // メンバーのユーザーIDとユーザー名取得
         const members = await Promise.all(
             server_members.map((member) => user_repository.get_user_info(member.user_id))
         );
-            
+
         return {
             status: 200,
             message: 'サーバーメンバー取得成功',
@@ -231,7 +232,7 @@ const get_non_server_members = async (user_id, server_id) => {
             message: 'サーバ未所属ユーザー情報取得成功',
             Non_members: user_info || [],
         }
-        
+
     } catch (err) {
         return {
             status: 500,
@@ -243,15 +244,15 @@ const get_non_server_members = async (user_id, server_id) => {
 
 const get_server_unread_count = async (server_id, user_id) => {
     try {
-        //チャンネルIDの取得
-        const channel_list = await server_repository.get_channel_list(server_id);
-        if (!channel_list) {
-            return { status: 404, message: 'チャンネルは存在しません' }
-        }
 
         const server = await server_repository.get_server_byID(server_id);
         if (!server) {
             return { status: 404, message: 'このサーバーは存在しません' }
+        }
+        //チャンネルIDの取得
+        const channel_list = await server_repository.get_channel_list(server_id);
+        if (!channel_list) {
+            return { status: 404, message: 'チャンネルは存在しません' }
         }
 
         // Time型のuntil_reply（'00:30:00'形式）を分に変換
@@ -261,51 +262,77 @@ const get_server_unread_count = async (server_id, user_id) => {
         //チャンネルの未読数を取得
         let total_unread_count = 0;
         let most_recent_message_time = null;
+        let unread_first_message_time = null;
 
         // 各チャンネルを処理
         for (const channel of channel_list) {
             // このチャンネルの最後のメッセージ情報を取得
-            const last_message = await server_repository.get_last_message(channel.channel_id, user_id);
-            
-            if (last_message && last_message.last_updated_at) {
+            const last_message = await message_repository.get_latest_message(channel.channel_id);
+
+            if (last_message && last_message.CREATED_AT) {
                 // このメッセージが全チャンネルで最新の場合、最新メッセージ時間を更新
-                if (!most_recent_message_time || new Date(last_message.last_updated_at) > new Date(most_recent_message_time)) {
-                    most_recent_message_time = last_message.last_updated_at;
+                if (!most_recent_message_time || new Date(last_message.CREATED_AT) > new Date(most_recent_message_time)) {
+                    most_recent_message_time = last_message.CREATED_AT;
                 }
-                
+
                 // このチャンネルの未読数を取得して加算
                 const unread_result = await server_repository.get_channel_unread_count(channel.channel_id, user_id);
                 if (unread_result && unread_result.length > 0) {
                     total_unread_count += unread_result[0].unread_count;
                 }
+
+                // 自分が読んでいない一番古いメッセージを取得
+                const unread_first_message = await message_repository.get_unread_first_message(channel.channel_id, user_id);
+                console.log('unread_first_message', unread_first_message);
+                if (unread_first_message && unread_first_message.CREATED_AT) {
+                    const unread_date = new Date(unread_first_message.CREATED_AT);
+                    // 日付が有効かどうかを確認
+                    if (!isNaN(unread_date.getTime())) {
+                        // 初期値がnullの場合は無条件に最初の有効な値を設定
+                        if (unread_first_message_time === null) {
+                            unread_first_message_time = unread_first_message.CREATED_AT;
+                        } // そうでない場合は比較して古い方を保持
+                        else if (unread_date < new Date(unread_first_message_time)) {
+                            unread_first_message_time = unread_first_message.CREATED_AT;
+                        }
+                    }
+                }
             }
         }
-        
+
         // 返信期限までの残り時間を計算
         let minutes_remaining = null;
         let time_passed = null;
         let is_expired = false;
-        
+
         if (most_recent_message_time) {
             const now = new Date();
-            const message_time = new Date(most_recent_message_time);
+            const message_time = new Date(unread_first_message_time);
             const elapsed_minutes = Math.floor((now - message_time) / (1000 * 60));
-            
+
             time_passed = elapsed_minutes;
             minutes_remaining = until_reply_minutes - elapsed_minutes;
-            
+
             // 期限切れかどうかを確認
             if (minutes_remaining <= 0) {
                 minutes_remaining = 0;
                 is_expired = true;
             }
         }
-        
+
+        // 日本時間への変換関数
+        const convertToJST = (utcDate) => {
+            if (!utcDate) return null;
+            const date = new Date(utcDate);
+            return new Date(date.getTime() + 9 * 60 * 60 * 1000).toISOString();
+        };
+
         return {
             status: 200,
             message: 'チャンネルの未読数を取得しました',
             unread_count: total_unread_count,
-            most_recent_message_time: most_recent_message_time,
+            most_recent_message_time: convertToJST(most_recent_message_time),
+            unread_first_message_time: convertToJST(unread_first_message_time),
             until_reply: until_reply_time,
             until_reply_minutes: until_reply_minutes,
             time_passed: time_passed,
@@ -332,7 +359,7 @@ const add_non_server_member = async (server_id, user_id) => {
             }
         }
         return {
-            status: 200, 
+            status: 200,
             message: 'フレンドをサーバーに追加しました',
         }
     } catch (err) {
@@ -342,11 +369,11 @@ const add_non_server_member = async (server_id, user_id) => {
         }
     }
 }
-  
+
 const delete_channel = async (channel_id) => {
     try {
         const result = await server_repository.delete_channel(channel_id);
-        if(result.length === 0) {
+        if (result.length === 0) {
             return {
                 status: 404,
                 message: 'チャンネルは存在しません',
@@ -361,7 +388,7 @@ const delete_channel = async (channel_id) => {
             status: 500,
             message: 'チャンネルの削除に失敗しました',
             message: `error: ${err}`,
-        }    
+        }
     }
 }
 

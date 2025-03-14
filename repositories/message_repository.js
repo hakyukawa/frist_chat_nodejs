@@ -35,14 +35,15 @@ class message_repository {
     };
 
     //メッセージを取得
-    async get_message(channel_id, last_message_id,) {
+    async get_message(channel_id, last_message_id) {
         try {
+            const [last_message] = await this.get_message_by_id(last_message_id);
             const limit = 50;   //取得してくる件数
             let query = `SELECT * FROM message WHERE channel_id = ? `;
             const param = [channel_id];
             if (last_message_id) {
                 query += `AND created_at <= ? `;
-                param.push(last_message_id.created_at);
+                param.push(last_message.CREATED_AT);
             }
             query += `ORDER BY created_at DESC LIMIT ?`;
             param.push(limit);
@@ -53,8 +54,6 @@ class message_repository {
             const messages = [];
             
             for (const message of result) {
-              console.log("メッセージ" + message.CONTENT)
-
                 messages.push(new Message(
                     message.message_id || message.MESSAGE_ID,
                     message.channel_id || message.CHANNEL_ID,
@@ -101,10 +100,6 @@ class message_repository {
         `;
 
         const [result] = await pool.query(query, [channel_id, user_id]);
-        if (result.length === 0) {
-            // 既読状態が存在しない場合は新規作成
-            return new ReadStatus(channel_id, user_id, null, null, 0, null, null);
-        }
         console.log(result[0]);
 
         return new ReadStatus(
@@ -119,7 +114,7 @@ class message_repository {
     }
 
     // 既読状態を更新
-    async update_read_status(unread_status, user_id, channel_id) {
+    async update_read_status(message_id, last_message_id, user_id, channel_id) {
         try {
             const query = `
             UPDATE read_status
@@ -131,8 +126,8 @@ class message_repository {
             `;
 
             const params = [
-                unread_status.last_read_message_id,
-                unread_status.last_message_id,
+                message_id,
+                last_message_id,
                 0,
                 utils.getCurrentDateTime(),
                 channel_id,
