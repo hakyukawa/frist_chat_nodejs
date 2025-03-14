@@ -53,9 +53,9 @@ const edit_message = async (req, res) => {
 
 //メッセージの取得
 const get_message = async (req, res) => {
-    const { channel_id } = req.params;
+    const { channel_id, message_id } = req.params;
     const user_id = req.user_id;
-    const response = await message_service.get_message(channel_id, user_id);
+    const response = await message_service.get_message(channel_id, user_id, message_id);
     res.status(response.status).json(response);
 };
 
