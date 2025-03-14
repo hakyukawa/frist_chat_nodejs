@@ -133,7 +133,7 @@ class server_repository {
     }
 
     async get_last_message(channel_id, user_id) {
-        const [result] = await pool.query('SELECT last_message_id, last_updated_at FROM read_status WHERE channel_id = ? AND user_id = ?', [channel_id, user_id]);
+        const [result] = await pool.query('SELECT message_id, created_at FROM message WHERE channel_id = ? ORDER BY created_at DESC LIMIT 1', [channel_id, user_id]);
         if(result.length === 0) {
             return null;
         }
