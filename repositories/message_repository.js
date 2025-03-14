@@ -37,10 +37,7 @@ class message_repository {
     //メッセージを取得
     async get_message(channel_id, last_message_id) {
         try {
-
             const [last_message] = await this.get_message_by_id(last_message_id);
-            console.log(last_message);
-
             const limit = 50;   //取得してくる件数
             let query = `SELECT * FROM message WHERE channel_id = ? `;
             const param = [channel_id];
