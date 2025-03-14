@@ -47,9 +47,9 @@ class user_repository {
         }
     }
     // サインアップ関数
-    async resister(id, username, mail, hashedPassword, rank, point, created_time) {
+    async resister(id, username, mail, hashedPassword, rank, exp, point, created_time) {
         try {
-            const [rows] = await pool.query('INSERT INTO user (user_id, user_name, mail, password, user_rank, exp, point, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [id, username, mail, hashedPassword, rank, exp, point, created_time]);
+            const [rows] = await pool.query('INSERT INTO user (user_id, user_name, mail, password, user_rank, exp, point, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [id, username, mail, hashedPassword, rank, exp, point, created_time]);
             return rows.insertId;
         } catch (error) {
             throw error;
