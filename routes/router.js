@@ -6,7 +6,7 @@ const message_handler = require('../handlers/message_handler');
 const friend_handler = require('../handlers/friend_handler');
 const validate_body = require('../middleware/validate_body');
 const server_handler = require('../handlers/server_handler');
-const { get } = require('http');
+const item_handler = require('../handlers/item_handler');
 
 const v1 = express.Router();
 v1.use(validate_body);
@@ -73,10 +73,18 @@ channel.get('/message/:channel_id/:message_id', message_handler.get_message);   
 // 未読件数を更新
 channel.put('/count/:channel_id', message_handler.update_unread_count);     // http://localhost:3001/api/v1/channel/count/:channel_id
 
+// アイテム関連のエンドポイント
+const item = express.Router();
+// アイテム一覧取得
+item.get('/', item_handler.get_items);    // http://localhost:3001/api/v1/item/
+// アイテム一覧取得(種類ごとorIDで個別取得)
+item.get('/:item_type', item_handler.get_items_by_type);    // http://localhost:3001/api/v1/item/:item_type
+
 //　エンドポイントをマウント
 server.use('/channel', channel);
 auth.use('/user', user);
 auth.use('/server', server);
+auth.use('/item', item);
 v1.use('/auth', auth);
 
 router.use('/v1', v1);
