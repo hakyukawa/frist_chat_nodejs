@@ -79,6 +79,8 @@ const item = express.Router();
 item.get('/', item_handler.get_items);    // http://localhost:3001/api/v1/item/
 // アイテム一覧取得(種類ごとorIDで個別取得)
 item.get('/:item_type', item_handler.get_items_by_type);    // http://localhost:3001/api/v1/item/:item_type
+//アイテムを購入
+item.post('/', item_handler.buy_item);    // http://localhost:3001/api/v1/item/buy
 
 //　エンドポイントをマウント
 server.use('/channel', channel);

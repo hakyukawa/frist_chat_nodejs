@@ -22,8 +22,16 @@ const get_item_by_id = async (req, res) => {
     res.status(item.status).json(item);
 };
 
+const buy_item = async (req, res) => {
+    const user_id = req.user_id;
+    const item_id = req.body.item_id;
+    const result = await item_service.buy_item(user_id, item_id);
+    res.status(result.status).json(result);
+};
+
 module.exports = {
     get_items,
     get_items_by_type,
-    get_item_by_id
+    get_item_by_id,
+    buy_item
 };
