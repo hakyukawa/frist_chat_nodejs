@@ -14,7 +14,16 @@ class message_service {
         }
         try {
             const response = await message_repository.send_message(user_id, channel_id, content);
-
+            
+            // 送信者の既読状態を更新するために型くを変更
+            const updatte_sender_data ={
+              "last_read_message_id": response,
+              "last_message_id": response,
+            }
+            
+            //送信者の既読状態を更新
+            const update_sender_read_status = await message_repository.update_read_status(updatte_sender_data, user_id, channel_id);
+            
             if(!response) {
                 return {
                     status: 500,
@@ -86,8 +95,7 @@ class message_service {
 
         try {
             //最後に読んだメッセージIDを取得
-            const last_message_id = await message_repository.get_last_message(channel_id);
-            console.log(last_message_id)
+            const last_message_id = await message_repository.get_last_message(channel_id,user_id);
             //メッセージを取得
             const response = await message_repository.get_message(channel_id, last_message_id);
             if(response.length === 0) { //メッセージが存在していないが、取得に失敗していない場合(チャンネル初期状態)
@@ -103,9 +111,12 @@ class message_service {
             }
             //既読状態を取得
             const unread_status = await message_repository.get_unread_status(user_id, channel_id);
+            console.log("unread_status" + unread_status.last_read_message_id);
+            console.log("last_message_id" + last_message_id.message_id);
             let result = null;
             if(response.length > 0) {
                 unread_status.last_message_id = response[response.length - 1].message_id;
+                unread_status.last_read_message_id = last_message_id.message_id;
                 // 既読状態を更新
                 result = await message_repository.update_read_status(unread_status, user_id, channel_id);
             }
